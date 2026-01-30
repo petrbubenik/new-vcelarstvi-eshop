@@ -1,0 +1,72 @@
+# Role: Senior Full Stack Developer (Next.js Specialist)
+
+You are an expert web developer specializing in Next.js 14+ (App Router), TypeScript, Tailwind CSS, Shadcn UI, and Prisma. You focus on clean, maintainable code, high performance, and SEO optimization.
+
+# Project Context: Minimalist Czech E-shop
+
+You are building a lightweight e-shop for the Czech market.
+- **Language:** The UI (user-facing text) must be in **Czech (Čeština)**. Code comments and variable names should remain in English.
+- **Scope:** 3-5 Products only.
+- **Auth:** NO user registration or login. Guest checkout only.
+- **Payments:** NO payment gateway integration.
+  - Option 1: Bank Transfer (Bankovní převod) - Show instructions after order.
+  - Option 2: Cash on Delivery (Dobírka).
+- **SEO:** High priority. Use Next.js Metadata API.
+
+# Tech Stack
+
+- **Framework:** Next.js (App Router)
+- **Styling:** Tailwind CSS
+- **UI Component Library:** Shadcn UI
+- **Database/ORM:** Prisma (SQLite for dev, Postgres for prod)
+- **Validation:** Zod + React Hook Form (for checkout)
+
+# Coding Guidelines
+
+1.  **Server Actions:** Use Server Actions for database mutations (creating orders).
+2.  **Type Safety:** Strict TypeScript usage. No `any`.
+3.  **Styling:** Use `clsx` and `tailwind-merge` for utility class management.
+4.  **Components:** Keep components small, functional, and server-side rendered (RSC) where possible. Use "use client" only when interaction is required.
+
+# SCRATCHPAD (Current Plan)
+
+Use this section to track progress. When I ask "What's next?", look here.
+
+## Phase 1: Setup & Configuration
+- [ ] Initialize Next.js project with TypeScript, Tailwind, ESLint.
+- [ ] Initialize Shadcn UI (`npx shadcn-ui@latest init`).
+- [ ] Set up SEO metadata (title templates, open graph, description in Czech).
+- [ ] Configure `font-sans` (Inter or similar legible font).
+
+## Phase 2: Database & Schema (Prisma)
+- [ ] Initialize Prisma (`npx prisma init`).
+- [ ] Define Schema:
+    - `Product` (id, slug, name, description, price, image, stock).
+    - `Order` (id, customerName, email, phone, address, paymentMethod, status, total).
+    - `OrderItem` (relation between Order and Product).
+- [ ] Seed script: Create the 3-5 initial demo products.
+
+## Phase 3: UI Components (Shadcn)
+- [ ] Install base components: `Button`, `Card`, `Input`, `Label`, `Textarea`, `RadioGroup` (for payment method), `Form`, `Toast`.
+- [ ] Create a Layout wrapper (Header with Logo/Cart Icon, Footer with contact info).
+- [ ] Ensure all UI text is strictly in Czech.
+
+## Phase 4: Products Display
+- [ ] Create Homepage (`page.tsx`) displaying the product grid.
+- [ ] Create Product Card component.
+- [ ] Create Product Detail Page (`[slug]/page.tsx`) with SEO metadata generation based on product data.
+- [ ] Implement a simple "Add to Cart" mechanism (Context API or Zustand for local state management of the cart).
+
+## Phase 5: Checkout & Validation
+- [ ] Create `/checkout` page.
+- [ ] Implement Zod schema for Czech address validation (Ulice, Město, PSČ, Telefon).
+- [ ] Build the form using React Hook Form.
+- [ ] Implement Payment Method toggle (Bank Transfer vs. COD).
+
+## Phase 6: Order Processing
+- [ ] Create Server Action `submitOrder(data)`.
+- [ ] Validate stock and calculate total on the server.
+- [ ] Save order to Prisma DB.
+- [ ] Create a "Thank You" page (`/thank-you/[orderId]`).
+    - If Bank Transfer: Display IBAN, VS (Variable Symbol - usually Order ID), and Amount.
+    - If COD: Display confirmation that goods will be shipped.
