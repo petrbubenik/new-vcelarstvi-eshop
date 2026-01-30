@@ -23,14 +23,13 @@ export default async function HomePage() {
           Včelařské potřeby &middot; Bubeník
         </p>
         <h1 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-          Kvalitní včelařské potřeby přímo od výrobce
+          Poctivé včelařské vybavení přímo od výrobce
         </h1>
         <p className="text-base text-stone-700 sm:text-lg">
-          Nabízím mateří mřížky, odvíčkovací talíře, nádoby pod medomet a
-          další včelařské potřeby za skvělé ceny. Jelikož nakupujete přímo od
-          výrobce, nemusíte platit marži internetových obchodů a přeprodejců.
-          Výrobě včelařských potřeb se věnuji od roku 2010. Během této doby jsem
-          získal mnoho pravidelných a spokojených zákazníků.
+          Máte atypické rozměry nebo specifické nároky na materiál? Jako
+          výrobce se vám přizpůsobím. Mé mateří mřížky a odvíčkovací talíře
+          navrhuji tak, aby vám šetřily čas při práci s medem. Poctivá česká
+          výroba bez prostředníků a za férové ceny.
         </p>
       </section>
 

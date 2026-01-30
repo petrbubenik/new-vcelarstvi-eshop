@@ -7,19 +7,17 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-2">
           <div>
             <h3 className="mb-3 font-semibold text-amber-900">
-              Včelařské potřeby Bubeník
+              Poctivé včelařské řemeslo od roku 2010
             </h3>
-            <p className="mb-2 text-sm text-stone-600">
-              Kvalitní včelařské potřeby přímo od výrobce
-            </p>
             <p className="text-sm text-stone-600">
-              Výroba včelařských potřeb od roku 2010. Mateří mřížky,
-              odvíčkovací talíře, nádoby pod medomet a další.
+              Už více než 15 let pro vás vyrábím vybavení, kterému věří stovky
+              včelařů po celé zemi. Mé výrobky nejsou jen zboží, ale výsledek
+              letité praxe a naslouchání vašim potřebám.
             </p>
           </div>
-          <div>
+          <div class="ml-48">
             <h3 className="mb-3 font-semibold text-amber-900">Kontakt</h3>
-            <ul className="space-y-2 text-sm text-stone-600">
+            <ul className="space-y-1 text-sm text-stone-600">
               <li className="font-semibold text-stone-900">Petr Bubeník</li>
               <li>
                 <strong className="font-medium text-stone-700">Telefon:</strong>{" "}

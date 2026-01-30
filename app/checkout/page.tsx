@@ -22,7 +22,7 @@ import {
 import { useCartStore } from "@/lib/cart-store";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, Trash2, Check } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -131,7 +131,9 @@ export default function CheckoutPage() {
 
       const result = await response.json();
       clearCart();
-      toast.success("Objednávka úspěšně vytvořena!");
+      toast.success("Objednávka úspěšně vytvořena!", {
+        icon: <Check className="h-5 w-5 text-green-600" />,
+      });
       router.push(`/dekujeme/${result.orderId}`);
     } catch (error) {
       console.error("Order error:", error);
@@ -490,6 +492,12 @@ export default function CheckoutPage() {
                   <span>Celkem</span>
                   <span className="text-amber-700">
                     {formatPrice(getTotalPrice())}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm text-stone-600">
+                  <span>Cena bez DPH</span>
+                  <span>
+                    {formatPrice(Math.round(getTotalPrice() / 1.21))}
                   </span>
                 </div>
               </div>
