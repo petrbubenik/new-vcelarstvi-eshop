@@ -37,10 +37,7 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <strong className="font-medium text-stone-700">IČ:</strong> 08252734
-              </li>
-              <li>
-                <strong className="font-medium text-stone-700">DIČ:</strong> CZ6307021919
+                <strong className="font-medium text-stone-700">IČ:</strong> 08252734　<strong className="font-medium text-stone-700 ml-4">DIČ:</strong> CZ6307021919
               </li>
             </ul>
           </div>

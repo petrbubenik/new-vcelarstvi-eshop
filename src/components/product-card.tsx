@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import type { Product, ProductVariant } from "@prisma/client";
@@ -20,6 +19,7 @@ export function ProductCard({ product }: ProductCardProps) {
     return new Intl.NumberFormat("cs-CZ", {
       style: "currency",
       currency: "CZK",
+      minimumFractionDigits: 0,
     }).format(price / 100);
   };
 
@@ -61,8 +61,7 @@ export function ProductCard({ product }: ProductCardProps) {
             size="sm"
             className="bg-amber-600 hover:bg-amber-700"
           >
-            <ShoppingCart className="mr-2 h-4 w-4" />
-            {hasVariants ? "Vybrat" : "Do košíku"}
+            Detail
           </Button>
         </CardFooter>
       </Card>

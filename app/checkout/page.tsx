@@ -401,7 +401,7 @@ export default function CheckoutPage() {
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-start gap-3 border-b border-stone-100 pb-3 last:border-0"
+                  className="flex items-start gap-3 pb-6"
                 >
                   <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-stone-100">
                     <img
@@ -415,59 +415,73 @@ export default function CheckoutPage() {
                     <p className="text-sm text-stone-600">
                       {formatPrice(item.price)}
                     </p>
-                    <div className="mt-1 flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const newQty = Math.max(1, item.quantity - 1);
-                          updateQuantity(item.id, newQty);
-                          setQuantityInputs({ ...quantityInputs, [item.id]: newQty.toString() });
-                        }}
-                        className="flex h-8 w-8 items-center justify-center rounded border border-stone-300 text-stone-600 hover:bg-stone-100 disabled:opacity-50"
-                      >
-                        -
-                      </button>
-                      <input
-                        type="number"
-                        value={quantityInputs[item.id] || item.quantity.toString()}
-                        onChange={(e) => {
-                          setQuantityInputs({ ...quantityInputs, [item.id]: e.target.value });
-                        }}
-                        onBlur={(e) => {
-                          const value = e.target.value;
-                          if (value === "" || value === "0" || parseInt(value) < 1) {
-                            updateQuantity(item.id, 1);
-                            setQuantityInputs({ ...quantityInputs, [item.id]: "1" });
-                          } else {
-                            const numValue = parseInt(value);
-                            if (!isNaN(numValue)) {
-                              updateQuantity(item.id, numValue);
-                              setQuantityInputs({ ...quantityInputs, [item.id]: numValue.toString() });
-                            }
-                          }
-                        }}
-                        className="w-24 rounded border border-stone-300 px-2 py-1 text-center text-sm"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const newQty = item.quantity + 1;
-                          updateQuantity(item.id, newQty);
-                          setQuantityInputs({ ...quantityInputs, [item.id]: newQty.toString() });
-                        }}
-                        className="flex h-8 w-8 items-center justify-center rounded border border-stone-300 text-stone-600 hover:bg-stone-100"
-                      >
-                        +
-                      </button>
+                    <div className="mt-1 pr-4">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newQty = Math.max(1, item.quantity - 1);
+                            updateQuantity(item.id, newQty);
+                            setQuantityInputs({ ...quantityInputs, [item.id]: newQty.toString() });
+                          }}
+                          className="flex h-8 w-8 items-center justify-center rounded border border-stone-300 text-stone-600 hover:bg-stone-100 disabled:opacity-50"
+                        >
+                          -
+                        </button>
+                        <div className="w-16 text-center">
+                          <div className="relative">
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              value={(quantityInputs[item.id] || "").replace(/\B(?=(\d{3})+(?!\d))/g, " ")}
+                              onChange={(e) => {
+                                const value = e.target.value.replace(/\s/g, ""); // Remove spaces
+                                // Check if value contains only numbers
+                                if (/^\d*$/.test(value)) {
+                                  setQuantityInputs({ ...quantityInputs, [item.id]: value });
+                                  const numValue = parseInt(value);
+                                  if (!isNaN(numValue) && numValue >= 1) {
+                                    updateQuantity(item.id, numValue);
+                                  }
+                                } else {
+                                  // If non-numeric, set to 1
+                                  updateQuantity(item.id, 1);
+                                  setQuantityInputs({ ...quantityInputs, [item.id]: "1" });
+                                }
+                              }}
+                              onBlur={() => {
+                                const value = quantityInputs[item.id] || "";
+                                if (value === "" || parseInt(value) < 1) {
+                                  updateQuantity(item.id, 1);
+                                  setQuantityInputs({ ...quantityInputs, [item.id]: "1" });
+                                }
+                              }}
+                              className="h-8 w-full rounded border border-stone-300 px-2 text-center text-sm [appearance:textfield]"
+                            />
+                            <p className="absolute left-0 right-0 -bottom-4 text-center text-xs text-stone-500">ks</p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newQty = item.quantity + 1;
+                            updateQuantity(item.id, newQty);
+                            setQuantityInputs({ ...quantityInputs, [item.id]: newQty.toString() });
+                          }}
+                          className="flex h-8 w-8 items-center justify-center rounded border border-stone-300 text-stone-600 hover:bg-stone-100"
+                        >
+                          +
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeItem(item.id)}
+                          className="ml-auto text-stone-400 hover:text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => removeItem(item.id)}
-                    className="text-stone-400 hover:text-red-600"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
                 </div>
               ))}
 
