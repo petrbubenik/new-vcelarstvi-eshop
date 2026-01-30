@@ -40,10 +40,13 @@ model Order {
   customerName   String
   email          String
   phone          String
-  address        String
-  city           String
-  postalCode     String
-  paymentMethod  String   // BANK_TRANSFER or CASH_ON_DELIVERY
+  deliveryMethod String   @default("PPL") // PPL or SELF_COLLECTION
+  address        String?  // Optional - only for PPL
+  city           String?  // Optional - only for PPL
+  postalCode     String?  // Optional - only for PPL
+  paymentMethod  String   // BANK_TRANSFER, CASH_ON_DELIVERY, or CASH_IN_PERSON
+  deliveryCost   Int      @default(0) // Delivery cost in cents
+  codFee         Int      @default(0) // Cash on delivery fee in cents
   status         String   @default("PENDING") // PENDING, PROCESSING, COMPLETED, CANCELLED
   total          Int
   createdAt      DateTime @default(now())

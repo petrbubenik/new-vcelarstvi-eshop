@@ -71,11 +71,10 @@ export default function DopravaAPlatbaPage() {
             Osobní odběr
           </h2>
           <p className="text-stone-700">
-            Objednané zboží je možné vyzvednout ve <strong>všední dny od 8 do 14
-            hodin</strong> na adrese provozovny – <strong>Polní 46, 789 61
-            Bludov</strong>. Po přípravě zboží Vám zašleme e-mail s informací, že
-            si zboží můžete vyzvednout. Zboží bude pro Vás rezervované po dobu 5
-            pracovních dnů. Osobní odběr je vždy <strong>zdarma</strong>.
+            Po obdržení potvrzovacího e-mailu si můžete zboží vyzvednout na adrese
+            provozovny – <strong>Polní 46, 789 61 Bludov</strong>. Zboží bude pro
+            Vás rezervované po dobu 5 pracovních dnů. Osobní odběr je vždy{" "}
+            <strong>zdarma</strong>.
           </p>
         </section>
 
@@ -102,7 +101,7 @@ export default function DopravaAPlatbaPage() {
               </h3>
               <p className="text-stone-700">
                 Dobírkou je možné hradit zásilky zajišťované společností PPL. Příplatek
-                za dobírku je <strong>40 Kč</strong>. Zboží skladem je ihned po objednání
+                za dobírku je <strong>100 Kč</strong>. Zboží skladem je ihned po objednání
                 expedováno.
               </p>
             </div>
@@ -114,7 +113,7 @@ export default function DopravaAPlatbaPage() {
             Kontakt pro dotazy ohledně objednávek
           </h3>
           <p className="text-stone-700">
-            Máte-li jakékoli dotazy k dopravě nebo platbě, kontaktujte nás na{" "}
+            Máte-li jakékoli dotazy k dopravě nebo platbě, kontaktujte mě na{" "}
             <a
               href="mailto:obchod@vcelarstvi-bubenik.cz"
               className="font-semibold text-amber-700 hover:underline"

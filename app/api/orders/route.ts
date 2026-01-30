@@ -14,10 +14,13 @@ const orderSchema = z.object({
   customerName: z.string().min(2).max(100),
   email: z.string().email(),
   phone: z.string().min(9),
-  address: z.string().min(5).max(200),
-  city: z.string().min(2).max(100),
-  postalCode: z.string().regex(/^\d{3}\s?\d{2}$/),
-  paymentMethod: z.enum(["BANK_TRANSFER", "CASH_ON_DELIVERY"]),
+  deliveryMethod: z.enum(["PPL", "SELF_COLLECTION"]),
+  address: z.string().min(5).max(200).optional(),
+  city: z.string().min(2).max(100).optional(),
+  postalCode: z.string().regex(/^\d{3}\s?\d{2}$/).optional(),
+  paymentMethod: z.enum(["BANK_TRANSFER", "CASH_ON_DELIVERY", "CASH_IN_PERSON"]),
+  deliveryCost: z.number().int().min(0).optional(),
+  codFee: z.number().int().min(0).optional(),
   notes: z.string().max(500).optional(),
   items: z.array(orderItemSchema).min(1),
   total: z.number().int().positive(),
@@ -30,8 +33,18 @@ export async function POST(request: NextRequest) {
     // Validate request body
     const validatedData = orderSchema.parse(body);
 
+    // Validate address for PPL delivery
+    if (validatedData.deliveryMethod === "PPL") {
+      if (!validatedData.address || !validatedData.city || !validatedData.postalCode) {
+        return NextResponse.json(
+          { error: "Při doručení PPL je vyplnění adresy povinné" },
+          { status: 400 }
+        );
+      }
+    }
+
     // Verify stock and calculate server-side total
-    let serverTotal = 0;
+    let serverTotal = validatedData.deliveryCost || 0;
     const orderItemsToCreate: Array<{
       productId: string;
       variantId: string | null;
@@ -81,8 +94,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Verify total matches
-    if (serverTotal !== validatedData.total) {
+    // Verify total matches (allow small difference for delivery cost calculation)
+    if (Math.abs(serverTotal - validatedData.total) > 1) {
       return NextResponse.json(
         { error: "Cena se neshoduje s aktuální cenou produktů" },
         { status: 400 }
@@ -97,10 +110,13 @@ export async function POST(request: NextRequest) {
           customerName: validatedData.customerName,
           email: validatedData.email,
           phone: validatedData.phone,
-          address: validatedData.address,
-          city: validatedData.city,
-          postalCode: validatedData.postalCode,
+          deliveryMethod: validatedData.deliveryMethod,
+          address: validatedData.address || null,
+          city: validatedData.city || null,
+          postalCode: validatedData.postalCode || null,
           paymentMethod: validatedData.paymentMethod,
+          deliveryCost: validatedData.deliveryCost || 0,
+          codFee: validatedData.codFee || 0,
           status: "PENDING",
           total: validatedData.total,
           items: {

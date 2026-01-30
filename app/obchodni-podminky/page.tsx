@@ -29,9 +29,9 @@ export default function ObchodniPodminkyPage() {
           </h2>
           <p className="text-stone-700">
             Provozovatelem internetového obchodu{" "}
-            <strong>shop.vcelarstvi-bubenik.cz</strong> je fyzická osoba{" "}
+            <strong>vcelarstvi-bubenik.cz</strong> je fyzická osoba{" "}
             <strong>Petr Bubeník</strong>, se sídlem{" "}
-            <strong>Prievidzská 15, 787 01 Šumperk</strong>, IČO:{" "}
+            <strong>Bohdíkovská 3444/118, 787 01 Šumperk</strong>, IČO:{" "}
             <strong>08252734</strong>, DIČ: <strong>CZ6307021919</strong>, e-mail:{" "}
             <strong>obchod@vcelarstvi-bubenik.cz</strong>, telefonní číslo{" "}
             <strong>+420 777 553 319</strong> („Prodávající“).
@@ -103,7 +103,7 @@ export default function ObchodniPodminkyPage() {
             </li>
             <li>
               <strong>Dobírkou</strong> – V takovém případě dojde k platbě při doručení
-              Zboží. Příplatek za dobírku je 40 Kč.
+              Zboží. Příplatek za dobírku je 100 Kč.
             </li>
           </ul>
           <p className="text-stone-700">

@@ -40,22 +40,38 @@ const checkoutSchema = z.object({
     .string()
     .min(9, "Telefonní číslo musí mít alespoň 9 znaků")
     .regex(/^(\+?\d{1,3}[- ]?)?\d{9}$/, "Neplatný formát telefonního čísla"),
-  address: z
-    .string()
-    .min(5, "Adresa musí mít alespoň 5 znaků")
-    .max(200, "Adresa je příliš dlouhá"),
-  city: z
-    .string()
-    .min(2, "Město musí mít alespoň 2 znaky")
-    .max(100, "Název města je příliš dlouhý"),
-  postalCode: z
-    .string()
-    .regex(/^\d{3}\s?\d{2}$/, "PSČ musí být ve formátu 123 45 nebo 12345"),
-  paymentMethod: z.enum(["BANK_TRANSFER", "CASH_ON_DELIVERY"], {
+  deliveryMethod: z.enum(["PPL", "SELF_COLLECTION"], {
+    required_error: "Vyberte způsob doručení",
+  }),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  postalCode: z.string().optional(),
+  paymentMethod: z.enum(["BANK_TRANSFER", "CASH_ON_DELIVERY", "CASH_IN_PERSON"], {
     required_error: "Vyberte způsob platby",
   }),
   notes: z.string().max(500, "Poznámka je příliš dlouhá").optional(),
 });
+
+// Dynamic schema for delivery address when PPL is selected
+const checkoutSchemaWithAddress = checkoutSchema.refine(
+  (data) => {
+    if (data.deliveryMethod === "PPL") {
+      return (
+        data.address &&
+        data.address.length >= 5 &&
+        data.city &&
+        data.city.length >= 2 &&
+        data.postalCode &&
+        /^\d{3}\s?\d{2}$/.test(data.postalCode)
+      );
+    }
+    return true;
+  },
+  {
+    message: "Vyplňte doručovací adresu",
+    path: ["address"],
+  }
+);
 
 type CheckoutFormValues = z.infer<typeof checkoutSchema>;
 
@@ -63,6 +79,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [quantityInputs, setQuantityInputs] = useState<Record<string, string>>({});
+  const [deliveryMethod, setDeliveryMethod] = useState<"PPL" | "SELF_COLLECTION">("PPL");
   const { items, removeItem, updateQuantity, getTotalPrice, clearCart } =
     useCartStore();
 
@@ -79,6 +96,7 @@ export default function CheckoutPage() {
       customerName: "",
       email: "",
       phone: "",
+      deliveryMethod: "PPL",
       address: "",
       city: "",
       postalCode: "",
@@ -86,6 +104,18 @@ export default function CheckoutPage() {
       notes: "",
     },
   });
+
+  // Watch delivery method to show/hide address fields
+  const selectedDeliveryMethod = form.watch("deliveryMethod");
+
+  // Watch payment method for COD fee calculation
+  const selectedPaymentMethod = form.watch("paymentMethod");
+
+  // Calculate delivery cost based on delivery method and subtotal
+  const subtotal = getTotalPrice();
+  const deliveryCost = selectedDeliveryMethod === "SELF_COLLECTION" ? 0 : (subtotal >= 250000 ? 0 : 12500);
+  const codFee = selectedPaymentMethod === "CASH_ON_DELIVERY" ? 10000 : 0; // 100 Kč = 10000 cents
+  const totalPrice = subtotal + deliveryCost + codFee;
 
   // Initialize quantity inputs when items change
   useEffect(() => {
@@ -96,15 +126,58 @@ export default function CheckoutPage() {
     setQuantityInputs(inputs);
   }, [items]);
 
+  // Reset payment method when delivery method changes
+  useEffect(() => {
+    const currentPaymentMethod = form.getValues("paymentMethod");
+    if (selectedDeliveryMethod === "SELF_COLLECTION" && currentPaymentMethod === "CASH_ON_DELIVERY") {
+      form.setValue("paymentMethod", "BANK_TRANSFER");
+    } else if (selectedDeliveryMethod === "PPL" && currentPaymentMethod === "CASH_IN_PERSON") {
+      form.setValue("paymentMethod", "BANK_TRANSFER");
+    }
+  }, [selectedDeliveryMethod, form]);
+
   const onSubmit = async (data: CheckoutFormValues) => {
     if (items.length === 0) {
       toast.error("Košík je prázdný");
       return;
     }
 
+    // Validate address fields for PPL delivery
+    if (data.deliveryMethod === "PPL") {
+      if (!data.address || data.address.length < 5) {
+        form.setError("address", {
+          type: "manual",
+          message: "Adresa je povinná při doručení PPL",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+      if (!data.city || data.city.length < 2) {
+        form.setError("city", {
+          type: "manual",
+          message: "Město je povinné při doručení PPL",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+      if (!data.postalCode || !/^\d{3}\s?\d{2}$/.test(data.postalCode)) {
+        form.setError("postalCode", {
+          type: "manual",
+          message: "PSČ je povinné při doručení PPL",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     setIsSubmitting(true);
 
     try {
+      const currentSubtotal = getTotalPrice();
+      const currentDeliveryCost = data.deliveryMethod === "SELF_COLLECTION" ? 0 : (currentSubtotal >= 250000 ? 0 : 12500);
+      const currentCodFee = data.paymentMethod === "CASH_ON_DELIVERY" ? 10000 : 0;
+      const currentTotal = currentSubtotal + currentDeliveryCost + currentCodFee;
+
       const orderData = {
         ...data,
         items: items.map((item) => ({
@@ -113,7 +186,9 @@ export default function CheckoutPage() {
           priceAtPurchase: item.price,
           size: item.size,
         })),
-        total: getTotalPrice(),
+        deliveryCost: currentDeliveryCost,
+        codFee: currentCodFee,
+        total: currentTotal,
       };
 
       const response = await fetch("/api/orders", {
@@ -245,27 +320,91 @@ export default function CheckoutPage() {
                 </CardContent>
               </Card>
 
-              {/* Delivery Address */}
+              {/* Delivery Method */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Doručovací adresa</CardTitle>
+                  <CardTitle>Způsob doručení</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent>
                   <FormField
                     control={form.control}
-                    name="address"
+                    name="deliveryMethod"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Ulice a číslo popisné *</FormLabel>
                         <FormControl>
-                          <Input placeholder="Ulice 123" {...field} />
+                          <RadioGroup
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              setDeliveryMethod(value as "PPL" | "SELF_COLLECTION");
+                            }}
+                            value={field.value}
+                            className="space-y-3"
+                          >
+                            <FormItem className="flex items-center space-x-3 space-y-0 rounded-md border border-stone-200 p-4">
+                              <FormControl>
+                                <RadioGroupItem value="PPL" />
+                              </FormControl>
+                              <FormLabel className="flex-1 cursor-pointer font-normal">
+                                <div>
+                                  <p className="font-medium text-stone-900">
+                                    Doručení PPL
+                                  </p>
+                                  <p className="text-sm text-stone-600">
+                                    Zboží bude doručeno na Vaši adresu prostřednictvím
+                                    přepravce PPL. Doručení obvykle do 2 pracovních dnů.
+                                    ZDARMA při objednávce nad 2 500 Kč.
+                                  </p>
+                                </div>
+                              </FormLabel>
+                            </FormItem>
+                            <FormItem className="flex items-center space-x-3 space-y-0 rounded-md border border-stone-200 p-4">
+                              <FormControl>
+                                <RadioGroupItem value="SELF_COLLECTION" />
+                              </FormControl>
+                              <FormLabel className="flex-1 cursor-pointer font-normal">
+                                <div>
+                                  <p className="font-medium text-stone-900">
+                                    Osobní odběr
+                                  </p>
+                                  <p className="text-sm text-stone-600">
+                                    Zboží si můžete vyzvednout po obdržení
+                                    potvrzovacího e-mailu na adrese - Polní 46, 789
+                                    61 Bludov.
+                                  </p>
+                                </div>
+                              </FormLabel>
+                            </FormItem>
+                          </RadioGroup>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <div className="grid gap-4 sm:grid-cols-2">
+                </CardContent>
+              </Card>
+
+              {/* Delivery Address - only show for PPL */}
+              {selectedDeliveryMethod === "PPL" && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Doručovací adresa</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
                     <FormField
+                      control={form.control}
+                      name="address"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Ulice a číslo popisné *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Ulice 123" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <FormField
                       control={form.control}
                       name="city"
                       render={({ field }) => (
@@ -294,6 +433,7 @@ export default function CheckoutPage() {
                   </div>
                 </CardContent>
               </Card>
+              )}
 
               {/* Payment Method */}
               <Card>
@@ -308,7 +448,9 @@ export default function CheckoutPage() {
                       <FormItem>
                         <FormControl>
                           <RadioGroup
-                            onValueChange={field.onChange}
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                            }}
                             value={field.value}
                             className="space-y-3"
                           >
@@ -328,22 +470,41 @@ export default function CheckoutPage() {
                                 </div>
                               </FormLabel>
                             </FormItem>
-                            <FormItem className="flex items-center space-x-3 space-y-0 rounded-md border border-stone-200 p-4">
-                              <FormControl>
-                                <RadioGroupItem value="CASH_ON_DELIVERY" />
-                              </FormControl>
-                              <FormLabel className="flex-1 cursor-pointer font-normal">
-                                <div>
-                                  <p className="font-medium text-stone-900">
-                                    Dobírka
-                                  </p>
-                                  <p className="text-sm text-stone-600">
-                                    Zaplatíte při převzetí zboží. Příplatek za
-                                    dobírku je zahrnut v ceně.
-                                  </p>
-                                </div>
-                              </FormLabel>
-                            </FormItem>
+                            {selectedDeliveryMethod === "PPL" && (
+                              <FormItem className="flex items-center space-x-3 space-y-0 rounded-md border border-stone-200 p-4">
+                                <FormControl>
+                                  <RadioGroupItem value="CASH_ON_DELIVERY" />
+                                </FormControl>
+                                <FormLabel className="flex-1 cursor-pointer font-normal">
+                                  <div>
+                                    <p className="font-medium text-stone-900">
+                                      Dobírka
+                                    </p>
+                                    <p className="text-sm text-stone-600">
+                                      Zaplatíte při převzetí zboží. Příplatek za
+                                      dobírku je 100 Kč.
+                                    </p>
+                                  </div>
+                                </FormLabel>
+                              </FormItem>
+                            )}
+                            {selectedDeliveryMethod === "SELF_COLLECTION" && (
+                              <FormItem className="flex items-center space-x-3 space-y-0 rounded-md border border-stone-200 p-4">
+                                <FormControl>
+                                  <RadioGroupItem value="CASH_IN_PERSON" />
+                                </FormControl>
+                                <FormLabel className="flex-1 cursor-pointer font-normal">
+                                  <div>
+                                    <p className="font-medium text-stone-900">
+                                      Hotově v provozovně
+                                    </p>
+                                    <p className="text-sm text-stone-600">
+                                      Platba při osobním vyzvednutí zboží.
+                                    </p>
+                                  </div>
+                                </FormLabel>
+                              </FormItem>
+                            )}
                           </RadioGroup>
                         </FormControl>
                         <FormMessage />
@@ -395,7 +556,7 @@ export default function CheckoutPage() {
 
         {/* Cart Summary */}
         <div>
-          <Card className="sticky top-20">
+          <Card className="sticky top-36">
             <CardHeader>
               <CardTitle>Souhrn objednávky</CardTitle>
             </CardHeader>
@@ -488,16 +649,32 @@ export default function CheckoutPage() {
               ))}
 
               <div className="border-t border-stone-200 pt-4">
-                <div className="flex items-center justify-between text-lg font-bold">
+                <div className="flex items-center justify-between text-stone-700">
+                  <span>Mezisoučet</span>
+                  <span>{formatPrice(subtotal)}</span>
+                </div>
+                {selectedDeliveryMethod === "PPL" && (
+                  <div className="flex items-center justify-between text-stone-700">
+                    <span>Doprava PPL</span>
+                    <span>
+                      {deliveryCost === 0 ? "Zdarma" : formatPrice(deliveryCost)}
+                    </span>
+                  </div>
+                )}
+                {selectedPaymentMethod === "CASH_ON_DELIVERY" && (
+                  <div className="flex items-center justify-between text-stone-700">
+                    <span>Dobírka</span>
+                    <span>{formatPrice(codFee)}</span>
+                  </div>
+                )}
+                <div className="mt-2 flex items-center justify-between text-lg font-bold">
                   <span>Celkem</span>
-                  <span className="text-amber-700">
-                    {formatPrice(getTotalPrice())}
-                  </span>
+                  <span className="text-amber-700">{formatPrice(totalPrice)}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm text-stone-600">
                   <span>Cena bez DPH</span>
                   <span>
-                    {formatPrice(Math.round(getTotalPrice() / 1.21))}
+                    {formatPrice(Math.round(totalPrice / 1.21))}
                   </span>
                 </div>
               </div>
