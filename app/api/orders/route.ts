@@ -56,6 +56,12 @@ export async function POST(request: NextRequest) {
       where: { id: string };
       data: { stock: number };
     }> = [];
+    const emailItems: Array<{
+      name: string;
+      quantity: number;
+      price: number;
+      size?: string;
+    }> = [];
 
     for (const item of validatedData.items) {
       // Check if it's a variant (starts with cuid format) or product
@@ -91,6 +97,12 @@ export async function POST(request: NextRequest) {
       variantsWithStock.push({
         where: { id: variant.id },
         data: { stock: { decrement: item.quantity } },
+      });
+      emailItems.push({
+        name: variant.product.name,
+        quantity: item.quantity,
+        price: item.priceAtPurchase,
+        size: item.size || variant.size || undefined,
       });
     }
 
@@ -135,6 +147,51 @@ export async function POST(request: NextRequest) {
 
       return order;
     });
+
+    // Send emails (fire and forget - don't block the response)
+    fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "notification",
+        data: {
+          customerName: validatedData.customerName,
+          customerEmail: validatedData.email,
+          customerPhone: validatedData.phone,
+          deliveryMethod: validatedData.deliveryMethod,
+          address: validatedData.address || "",
+          city: validatedData.city || "",
+          postalCode: validatedData.postalCode || "",
+          paymentMethod: validatedData.paymentMethod,
+          items: emailItems,
+          deliveryCost: validatedData.deliveryCost || 0,
+          codFee: validatedData.codFee || 0,
+          total: validatedData.total,
+        },
+      }),
+    }).catch((err) => console.error("Failed to send notification email:", err));
+
+    fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "confirmation",
+        orderId: result.id,
+        data: {
+          customerName: validatedData.customerName,
+          customerEmail: validatedData.email,
+          deliveryMethod: validatedData.deliveryMethod,
+          address: validatedData.address || "",
+          city: validatedData.city || "",
+          postalCode: validatedData.postalCode || "",
+          paymentMethod: validatedData.paymentMethod,
+          items: emailItems,
+          deliveryCost: validatedData.deliveryCost || 0,
+          codFee: validatedData.codFee || 0,
+          total: validatedData.total,
+        },
+      }),
+    }).catch((err) => console.error("Failed to send confirmation email:", err));
 
     return NextResponse.json(
       {

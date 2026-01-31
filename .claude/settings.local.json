@@ -6,7 +6,9 @@
       "Bash(npm run db:seed:*)",
       "Bash(npx shadcn@latest add:*)",
       "Bash(npx prisma generate:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(node:*)",
+      "Bash(curl:*)"
     ]
   }
 }
