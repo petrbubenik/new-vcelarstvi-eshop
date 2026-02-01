@@ -18,6 +18,17 @@ const orderSchema = z.object({
   address: z.string().min(5).max(200).optional(),
   city: z.string().min(2).max(100).optional(),
   postalCode: z.string().regex(/^\d{3}\s?\d{2}$/).optional(),
+  // Company fields
+  isCompany: z.boolean().optional(),
+  companyName: z.string().optional(),
+  companyIc: z.string().optional(),
+  companyDic: z.string().optional(),
+  // Different delivery address
+  differentDeliveryAddr: z.boolean().optional(),
+  deliveryName: z.string().optional(),
+  deliveryAddress: z.string().optional(),
+  deliveryCity: z.string().optional(),
+  deliveryPostalCode: z.string().optional(),
   paymentMethod: z.enum(["BANK_TRANSFER", "CASH_ON_DELIVERY", "CASH_IN_PERSON"]),
   deliveryCost: z.number().int().min(0).optional(),
   codFee: z.number().int().min(0).optional(),
@@ -37,9 +48,53 @@ export async function POST(request: NextRequest) {
     if (validatedData.deliveryMethod === "PPL") {
       if (!validatedData.address || !validatedData.city || !validatedData.postalCode) {
         return NextResponse.json(
-          { error: "Při doručení PPL je vyplnění adresy povinné" },
+          { error: "Při doručení PPL je vyplnění fakturační adresy povinné" },
           { status: 400 }
         );
+      }
+
+      // Validate company fields if buying as company
+      if (validatedData.isCompany) {
+        if (!validatedData.companyName || validatedData.companyName.length < 2) {
+          return NextResponse.json(
+            { error: "Název společnosti je povinný při nákupu na firmu" },
+            { status: 400 }
+          );
+        }
+        if (!validatedData.companyIc || validatedData.companyIc.length < 6) {
+          return NextResponse.json(
+            { error: "IČ je povinné při nákupu na firmu" },
+            { status: 400 }
+          );
+        }
+      }
+
+      // Validate delivery address if different
+      if (validatedData.differentDeliveryAddr) {
+        if (!validatedData.deliveryName || validatedData.deliveryName.length < 2) {
+          return NextResponse.json(
+            { error: "Jméno pro doručovací adresu je povinné" },
+            { status: 400 }
+          );
+        }
+        if (!validatedData.deliveryAddress || validatedData.deliveryAddress.length < 5) {
+          return NextResponse.json(
+            { error: "Ulice pro doručovací adresu je povinná" },
+            { status: 400 }
+          );
+        }
+        if (!validatedData.deliveryCity || validatedData.deliveryCity.length < 2) {
+          return NextResponse.json(
+            { error: "Město pro doručovací adresu je povinné" },
+            { status: 400 }
+          );
+        }
+        if (!validatedData.deliveryPostalCode || !/^\d{3}\s?\d{2}$/.test(validatedData.deliveryPostalCode)) {
+          return NextResponse.json(
+            { error: "PSČ pro doručovací adresu je povinné" },
+            { status: 400 }
+          );
+        }
       }
     }
 
@@ -126,6 +181,15 @@ export async function POST(request: NextRequest) {
           address: validatedData.address || null,
           city: validatedData.city || null,
           postalCode: validatedData.postalCode || null,
+          isCompany: validatedData.isCompany || false,
+          companyName: validatedData.companyName || null,
+          companyIc: validatedData.companyIc || null,
+          companyDic: validatedData.companyDic || null,
+          differentDeliveryAddr: validatedData.differentDeliveryAddr || false,
+          deliveryName: validatedData.deliveryName || null,
+          deliveryAddress: validatedData.deliveryAddress || null,
+          deliveryCity: validatedData.deliveryCity || null,
+          deliveryPostalCode: validatedData.deliveryPostalCode || null,
           paymentMethod: validatedData.paymentMethod,
           deliveryCost: validatedData.deliveryCost || 0,
           codFee: validatedData.codFee || 0,
@@ -149,7 +213,8 @@ export async function POST(request: NextRequest) {
     });
 
     // Send emails (fire and forget - don't block the response)
-    fetch("/api/send-email", {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    fetch(`${baseUrl}/api/send-email`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -159,19 +224,26 @@ export async function POST(request: NextRequest) {
           customerEmail: validatedData.email,
           customerPhone: validatedData.phone,
           deliveryMethod: validatedData.deliveryMethod,
-          address: validatedData.address || "",
-          city: validatedData.city || "",
-          postalCode: validatedData.postalCode || "",
+          // Use the actual delivery address (different address if selected, otherwise billing address)
+          address: validatedData.differentDeliveryAddr ? validatedData.deliveryAddress || "" : validatedData.address || "",
+          city: validatedData.differentDeliveryAddr ? validatedData.deliveryCity || "" : validatedData.city || "",
+          postalCode: validatedData.differentDeliveryAddr ? validatedData.deliveryPostalCode || "" : validatedData.postalCode || "",
           paymentMethod: validatedData.paymentMethod,
           items: emailItems,
           deliveryCost: validatedData.deliveryCost || 0,
           codFee: validatedData.codFee || 0,
           total: validatedData.total,
+          // Add company info if applicable
+          ...(validatedData.isCompany && {
+            companyName: validatedData.companyName,
+            companyIc: validatedData.companyIc,
+            companyDic: validatedData.companyDic,
+          }),
         },
       }),
     }).catch((err) => console.error("Failed to send notification email:", err));
 
-    fetch("/api/send-email", {
+    fetch(`${baseUrl}/api/send-email`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -181,14 +253,21 @@ export async function POST(request: NextRequest) {
           customerName: validatedData.customerName,
           customerEmail: validatedData.email,
           deliveryMethod: validatedData.deliveryMethod,
-          address: validatedData.address || "",
-          city: validatedData.city || "",
-          postalCode: validatedData.postalCode || "",
+          // Use the actual delivery address (different address if selected, otherwise billing address)
+          address: validatedData.differentDeliveryAddr ? validatedData.deliveryAddress || "" : validatedData.address || "",
+          city: validatedData.differentDeliveryAddr ? validatedData.deliveryCity || "" : validatedData.city || "",
+          postalCode: validatedData.differentDeliveryAddr ? validatedData.deliveryPostalCode || "" : validatedData.postalCode || "",
           paymentMethod: validatedData.paymentMethod,
           items: emailItems,
           deliveryCost: validatedData.deliveryCost || 0,
           codFee: validatedData.codFee || 0,
           total: validatedData.total,
+          // Add company info if applicable
+          ...(validatedData.isCompany && {
+            companyName: validatedData.companyName,
+            companyIc: validatedData.companyIc,
+            companyDic: validatedData.companyDic,
+          }),
         },
       }),
     }).catch((err) => console.error("Failed to send confirmation email:", err));

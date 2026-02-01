@@ -19,6 +19,7 @@ import {
   RadioGroup,
   RadioGroupItem,
 } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useCartStore } from "@/lib/cart-store";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -26,7 +27,7 @@ import { ArrowLeft, Trash2, Check } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
-// Czech-specific validation schema
+// Czech-specific validation schema - with conditional validation using superRefine
 const checkoutSchema = z.object({
   customerName: z
     .string()
@@ -43,35 +44,101 @@ const checkoutSchema = z.object({
   deliveryMethod: z.enum(["PPL", "SELF_COLLECTION"], {
     required_error: "Vyberte způsob doručení",
   }),
+  // Billing address (fakturační adresa)
   address: z.string().optional(),
   city: z.string().optional(),
   postalCode: z.string().optional(),
+  // Company fields
+  isCompany: z.boolean().optional(),
+  companyName: z.string().optional(),
+  companyIc: z.string().optional(),
+  companyDic: z.string().optional(),
+  // Different delivery address
+  differentDeliveryAddr: z.boolean().optional(),
+  deliveryName: z.string().optional(),
+  deliveryAddress: z.string().optional(),
+  deliveryCity: z.string().optional(),
+  deliveryPostalCode: z.string().optional(),
   paymentMethod: z.enum(["BANK_TRANSFER", "CASH_ON_DELIVERY", "CASH_IN_PERSON"], {
     required_error: "Vyberte způsob platby",
   }),
   notes: z.string().max(500, "Poznámka je příliš dlouhá").optional(),
-});
-
-// Dynamic schema for delivery address when PPL is selected
-const checkoutSchemaWithAddress = checkoutSchema.refine(
-  (data) => {
-    if (data.deliveryMethod === "PPL") {
-      return (
-        data.address &&
-        data.address.length >= 5 &&
-        data.city &&
-        data.city.length >= 2 &&
-        data.postalCode &&
-        /^\d{3}\s?\d{2}$/.test(data.postalCode)
-      );
+}).superRefine((data, ctx) => {
+  // Validate billing address for PPL delivery
+  if (data.deliveryMethod === "PPL") {
+    if (!data.address || data.address.length < 5) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["address"],
+        message: "Ulice a číslo popisné je povinné",
+      });
     }
-    return true;
-  },
-  {
-    message: "Vyplňte doručovací adresu",
-    path: ["address"],
+    if (!data.city || data.city.length < 2) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["city"],
+        message: "Město je povinné",
+      });
+    }
+    if (!data.postalCode || !/^\d{3}\s?\d{2}$/.test(data.postalCode)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["postalCode"],
+        message: "PSČ musí mít formát 123 45",
+      });
+    }
+
+    // Validate company fields if buying as company
+    if (data.isCompany) {
+      if (!data.companyName || data.companyName.length < 2) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["companyName"],
+          message: "Název společnosti je povinný",
+        });
+      }
+      if (!data.companyIc || data.companyIc.length < 6) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["companyIc"],
+          message: "IČ je povinné (alespoň 6 znaků)",
+        });
+      }
+    }
+
+    // Validate delivery address if different
+    if (data.differentDeliveryAddr) {
+      if (!data.deliveryName || data.deliveryName.length < 2) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["deliveryName"],
+          message: "Jméno příjemce je povinné",
+        });
+      }
+      if (!data.deliveryAddress || data.deliveryAddress.length < 5) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["deliveryAddress"],
+          message: "Ulice a číslo popisné je povinné",
+        });
+      }
+      if (!data.deliveryCity || data.deliveryCity.length < 2) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["deliveryCity"],
+          message: "Město je povinné",
+        });
+      }
+      if (!data.deliveryPostalCode || !/^\d{3}\s?\d{2}$/.test(data.deliveryPostalCode)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["deliveryPostalCode"],
+          message: "PSČ musí mít formát 123 45",
+        });
+      }
+    }
   }
-);
+});
 
 type CheckoutFormValues = z.infer<typeof checkoutSchema>;
 
@@ -79,7 +146,6 @@ export default function CheckoutPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [quantityInputs, setQuantityInputs] = useState<Record<string, string>>({});
-  const [deliveryMethod, setDeliveryMethod] = useState<"PPL" | "SELF_COLLECTION">("PPL");
   const { items, removeItem, updateQuantity, getTotalPrice, clearCart } =
     useCartStore();
 
@@ -100,6 +166,15 @@ export default function CheckoutPage() {
       address: "",
       city: "",
       postalCode: "",
+      isCompany: false,
+      companyName: "",
+      companyIc: "",
+      companyDic: "",
+      differentDeliveryAddr: false,
+      deliveryName: "",
+      deliveryAddress: "",
+      deliveryCity: "",
+      deliveryPostalCode: "",
       paymentMethod: "BANK_TRANSFER",
       notes: "",
     },
@@ -111,10 +186,16 @@ export default function CheckoutPage() {
   // Watch payment method for COD fee calculation
   const selectedPaymentMethod = form.watch("paymentMethod");
 
+  // Watch company checkbox
+  const isCompany = form.watch("isCompany");
+
+  // Watch different delivery address checkbox
+  const differentDeliveryAddr = form.watch("differentDeliveryAddr");
+
   // Calculate delivery cost based on delivery method and subtotal
   const subtotal = getTotalPrice();
   const deliveryCost = selectedDeliveryMethod === "SELF_COLLECTION" ? 0 : (subtotal >= 250000 ? 0 : 12500);
-  const codFee = selectedPaymentMethod === "CASH_ON_DELIVERY" ? 10000 : 0; // 100 Kč = 10000 cents
+  const codFee = selectedPaymentMethod === "CASH_ON_DELIVERY" ? 10000 : 0;
   const totalPrice = subtotal + deliveryCost + codFee;
 
   // Initialize quantity inputs when items change
@@ -136,38 +217,17 @@ export default function CheckoutPage() {
     }
   }, [selectedDeliveryMethod, form]);
 
+  // Reset delivery address when switching away from PPL
+  useEffect(() => {
+    if (selectedDeliveryMethod === "SELF_COLLECTION") {
+      form.setValue("differentDeliveryAddr", false);
+    }
+  }, [selectedDeliveryMethod, form]);
+
   const onSubmit = async (data: CheckoutFormValues) => {
     if (items.length === 0) {
       toast.error("Košík je prázdný");
       return;
-    }
-
-    // Validate address fields for PPL delivery
-    if (data.deliveryMethod === "PPL") {
-      if (!data.address || data.address.length < 5) {
-        form.setError("address", {
-          type: "manual",
-          message: "Adresa je povinná při doručení PPL",
-        });
-        setIsSubmitting(false);
-        return;
-      }
-      if (!data.city || data.city.length < 2) {
-        form.setError("city", {
-          type: "manual",
-          message: "Město je povinné při doručení PPL",
-        });
-        setIsSubmitting(false);
-        return;
-      }
-      if (!data.postalCode || !/^\d{3}\s?\d{2}$/.test(data.postalCode)) {
-        form.setError("postalCode", {
-          type: "manual",
-          message: "PSČ je povinné při doručení PPL",
-        });
-        setIsSubmitting(false);
-        return;
-      }
     }
 
     setIsSubmitting(true);
@@ -177,6 +237,11 @@ export default function CheckoutPage() {
       const currentDeliveryCost = data.deliveryMethod === "SELF_COLLECTION" ? 0 : (currentSubtotal >= 250000 ? 0 : 12500);
       const currentCodFee = data.paymentMethod === "CASH_ON_DELIVERY" ? 10000 : 0;
       const currentTotal = currentSubtotal + currentDeliveryCost + currentCodFee;
+
+      // Determine which address to use for delivery label (billing or delivery address)
+      const deliveryAddress = data.differentDeliveryAddr ? data.deliveryAddress : data.address;
+      const deliveryCity = data.differentDeliveryAddr ? data.deliveryCity : data.city;
+      const deliveryPostalCode = data.differentDeliveryAddr ? data.deliveryPostalCode : data.postalCode;
 
       const orderData = {
         ...data,
@@ -189,6 +254,10 @@ export default function CheckoutPage() {
         deliveryCost: currentDeliveryCost,
         codFee: currentCodFee,
         total: currentTotal,
+        // For backward compatibility with emails, use the delivery address fields
+        address: deliveryAddress || "",
+        city: deliveryCity || "",
+        postalCode: deliveryPostalCode || "",
       };
 
       const response = await fetch("/api/orders", {
@@ -201,7 +270,7 @@ export default function CheckoutPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || "Chyba při zpracování objednávky");
+        throw new Error(error.message || error.error || "Chyba při zpracování objednávky");
       }
 
       const result = await response.json();
@@ -335,7 +404,8 @@ export default function CheckoutPage() {
                           <RadioGroup
                             onValueChange={(value) => {
                               field.onChange(value);
-                              setDeliveryMethod(value as "PPL" | "SELF_COLLECTION");
+                              // Reset different delivery address when switching delivery method
+                              form.setValue("differentDeliveryAddr", false);
                             }}
                             value={field.value}
                             className="space-y-3"
@@ -383,13 +453,12 @@ export default function CheckoutPage() {
                 </CardContent>
               </Card>
 
-              {/* Delivery Address - only show for PPL */}
-              {selectedDeliveryMethod === "PPL" && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Doručovací adresa</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
+              {/* Billing Address (Fakturační adresa) */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Fakturační adresa</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
                     <FormField
                       control={form.control}
                       name="address"
@@ -405,35 +474,187 @@ export default function CheckoutPage() {
                     />
                     <div className="grid gap-4 sm:grid-cols-2">
                       <FormField
-                      control={form.control}
-                      name="city"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Město *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Praha" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                        control={form.control}
+                        name="city"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Město *</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Praha" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="postalCode"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>PSČ *</FormLabel>
+                            <FormControl>
+                              <Input placeholder="123 45" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Company checkbox */}
                     <FormField
                       control={form.control}
-                      name="postalCode"
+                      name="isCompany"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>PSČ *</FormLabel>
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                           <FormControl>
-                            <Input placeholder="123 45" {...field} />
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
                           </FormControl>
-                          <FormMessage />
+                          <div className="space-y-1 leading-none">
+                            <FormLabel className="cursor-pointer">
+                              Nakupuji na firmu
+                            </FormLabel>
+                          </div>
                         </FormItem>
                       )}
                     />
-                  </div>
-                </CardContent>
-              </Card>
-              )}
+
+                    {/* Company fields - shown when isCompany is checked */}
+                    {isCompany && (
+                      <div className="space-y-4 rounded-md border border-stone-200 p-4">
+                        <FormField
+                          control={form.control}
+                          name="companyName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Název společnosti *</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Moje s.r.o." {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="companyIc"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>IČ *</FormLabel>
+                              <FormControl>
+                                <Input placeholder="12345678" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="companyDic"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>DIČ</FormLabel>
+                              <FormControl>
+                                <Input placeholder="CZ12345678" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    )}
+
+                    {/* Different delivery address - only for PPL */}
+                    {selectedDeliveryMethod === "PPL" && (
+                      <>
+                        {/* Different delivery address checkbox */}
+                        <FormField
+                          control={form.control}
+                          name="differentDeliveryAddr"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel className="cursor-pointer">
+                                  Doručit na jinou adresu
+                                </FormLabel>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Delivery address fields - shown when differentDeliveryAddr is checked */}
+                        {differentDeliveryAddr && (
+                          <div className="space-y-4 rounded-md border border-stone-200 p-4">
+                            <h3 className="font-medium text-stone-900">Doručovací adresa</h3>
+                            <FormField
+                              control={form.control}
+                              name="deliveryName"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Jméno a příjmení *</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Jan Novák" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="deliveryAddress"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Ulice a číslo popisné *</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Ulice 123" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <div className="grid gap-4 sm:grid-cols-2">
+                              <FormField
+                                control={form.control}
+                                name="deliveryCity"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Město *</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="Praha" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="deliveryPostalCode"
+                                render={({ field }) => (
+                                  <FormItem>
+                                  <FormLabel>PSČ *</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="123 45" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
 
               {/* Payment Method */}
               <Card>

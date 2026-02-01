@@ -278,19 +278,19 @@ export default async function ThankYouPage({
                 Máte dotaz k objednávce?
               </p>
               <p className="text-stone-600">
-                Kontaktujte nás na{" "}
+                Kontaktujte mě na{" "}
                 <a
-                  href="tel:+420123456789"
+                  href="tel:+420777553319"
                   className="font-semibold text-amber-700 hover:underline"
                 >
-                  +420 123 456 789
-                </a>{" "}
-                nebo e-mailu{" "}
+                  +420 777 553 319
+                </a>
+                {" "}nebo e-mailu{" "}
                 <a
-                  href="mailto:info@vcelarstvi.cz"
+                  href="mailto:obchod@vcelarstvi-bubenik.cz"
                   className="font-semibold text-amber-700 hover:underline"
                 >
-                  info@vcelarstvi.cz
+                  obchod@vcelarstvi-bubenik.cz
                 </a>
               </p>
             </div>

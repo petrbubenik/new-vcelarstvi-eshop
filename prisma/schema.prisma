@@ -36,21 +36,30 @@ model ProductVariant {
 }
 
 model Order {
-  id             String   @id @default(cuid())
-  customerName   String
-  email          String
-  phone          String
-  deliveryMethod String   @default("PPL") // PPL or SELF_COLLECTION
-  address        String?  // Optional - only for PPL
-  city           String?  // Optional - only for PPL
-  postalCode     String?  // Optional - only for PPL
-  paymentMethod  String   // BANK_TRANSFER, CASH_ON_DELIVERY, or CASH_IN_PERSON
-  deliveryCost   Int      @default(0) // Delivery cost in cents
-  codFee         Int      @default(0) // Cash on delivery fee in cents
-  status         String   @default("PENDING") // PENDING, PROCESSING, COMPLETED, CANCELLED
-  total          Int
-  createdAt      DateTime @default(now())
-  items          OrderItem[]
+  id                    String   @id @default(cuid())
+  customerName          String
+  email                 String
+  phone                 String
+  deliveryMethod        String   @default("PPL") // PPL or SELF_COLLECTION
+  address               String?  // Billing address - only for PPL
+  city                  String?  // Billing city - only for PPL
+  postalCode            String?  // Billing postal code - only for PPL
+  isCompany             Boolean  @default(false) // Whether customer is a company
+  companyName           String?  // Company name
+  companyIc             String?  // IČ (Identification number)
+  companyDic            String?  // DIČ (VAT number)
+  differentDeliveryAddr Boolean  @default(false) // Whether delivery address is different
+  deliveryName          String?  // Delivery address - name
+  deliveryAddress       String?  // Delivery address - street
+  deliveryCity          String?  // Delivery address - city
+  deliveryPostalCode    String?  // Delivery address - postal code
+  paymentMethod         String   // BANK_TRANSFER, CASH_ON_DELIVERY, or CASH_IN_PERSON
+  deliveryCost          Int      @default(0) // Delivery cost in cents
+  codFee                Int      @default(0) // Cash on delivery fee in cents
+  status                String   @default("PENDING") // PENDING, PROCESSING, COMPLETED, CANCELLED
+  total                 Int
+  createdAt             DateTime @default(now())
+  items                 OrderItem[]
 
   @@index([createdAt])
 }

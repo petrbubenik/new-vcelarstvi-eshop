@@ -28,6 +28,9 @@ interface OrderNotificationEmailProps {
   deliveryCost: number;
   codFee: number;
   total: number;
+  companyName?: string;
+  companyIc?: string;
+  companyDic?: string;
 }
 
 export function OrderNotificationEmail({
@@ -43,6 +46,9 @@ export function OrderNotificationEmail({
   deliveryCost,
   codFee,
   total,
+  companyName,
+  companyIc,
+  companyDic,
 }: OrderNotificationEmailProps) {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("cs-CZ", {
@@ -87,6 +93,23 @@ export function OrderNotificationEmail({
             <Text style={text}>
               <strong>Telefon:</strong> {customerPhone}
             </Text>
+            {companyName && (
+              <>
+                <Text style={text}>
+                  <strong>Firma:</strong> {companyName}
+                </Text>
+                {companyIc && (
+                  <Text style={text}>
+                    <strong>IČ:</strong> {companyIc}
+                  </Text>
+                )}
+                {companyDic && (
+                  <Text style={text}>
+                    <strong>DIČ:</strong> {companyDic}
+                  </Text>
+                )}
+              </>
+            )}
           </Section>
 
           <Section style={section}>
