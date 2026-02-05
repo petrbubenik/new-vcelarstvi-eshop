@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
     }> = [];
     const variantsWithStock: Array<{
       where: { id: string };
-      data: { stock: number };
+      data: { stock: { decrement: number } };
     }> = [];
     const emailItems: Array<{
       name: string;
