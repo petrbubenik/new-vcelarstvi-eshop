@@ -94,10 +94,10 @@ export default async function ThankYouPage({
             <CheckCircle2 className="h-12 w-12 text-green-600" />
           </div>
         </div>
-        <h1 className="mb-2 text-3xl font-bold text-stone-900">
+        <h1 className="mb-2 text-2xl font-bold text-stone-900 sm:text-3xl">
           Děkuji za vaši objednávku!
         </h1>
-        <p className="text-lg text-stone-600">
+        <p className="text-base text-stone-600 sm:text-lg">
           Vaše objednávka byla úspěšně přijata.
         </p>
         <p className="mt-2 text-sm text-stone-500">
@@ -244,7 +244,7 @@ export default async function ThankYouPage({
               <div className="text-sm text-stone-600">
                 <p>{order.address}</p>
                 <p>
-                  {formatPostalCode(order.postalCode)} {order.city}
+                  {order.postalCode && formatPostalCode(order.postalCode)} {order.city}
                 </p>
               </div>
             </div>

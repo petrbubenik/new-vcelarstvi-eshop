@@ -304,7 +304,7 @@ export default function CheckoutPage() {
         </Link>
 
         <Card className="mx-auto max-w-md text-center">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <h2 className="mb-2 text-xl font-semibold text-stone-900">
               Košík je prázdný
             </h2>
@@ -332,7 +332,7 @@ export default function CheckoutPage() {
         Zpět na produkty
       </Link>
 
-      <h1 className="mb-8 text-3xl font-bold text-stone-900">Objednávka</h1>
+      <h1 className="mb-8 text-2xl font-bold text-stone-900 sm:text-3xl">Objednávka</h1>
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
@@ -778,15 +778,15 @@ export default function CheckoutPage() {
 
         {/* Cart Summary */}
         <div>
-          <Card className="sticky top-36">
+          <Card className="sticky top-24 lg:top-36">
             <CardHeader>
-              <CardTitle>Souhrn objednávky</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">Souhrn objednávky</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 p-4 sm:space-y-4 sm:p-6">
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-start gap-3 pb-6"
+                  className="flex items-start gap-3 pb-4 sm:pb-6"
                 >
                   <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-stone-100">
                     <img

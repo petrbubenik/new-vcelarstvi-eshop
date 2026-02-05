@@ -129,15 +129,15 @@ export default async function ProductPage({
         </div>
 
         <div className="flex flex-col">
-          <h1 className="text-3xl font-bold text-stone-900">{product.name}</h1>
+          <h1 className="text-2xl font-bold text-stone-900 sm:text-3xl">{product.name}</h1>
 
           {hasVariants ? (
-            <p className="mt-4 text-2xl font-bold text-amber-700">
+            <p className="mt-4 text-xl font-bold text-amber-700 sm:text-2xl">
               {formatPrice(product.variants[0].price)} –{" "}
               {formatPrice(product.variants[product.variants.length - 1].price)}
             </p>
           ) : (
-            <p className="mt-4 text-2xl font-bold text-amber-700">
+            <p className="mt-4 text-xl font-bold text-amber-700 sm:text-2xl">
               {formatPrice(product.variants[0].price)}
             </p>
           )}

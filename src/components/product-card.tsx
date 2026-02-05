@@ -43,23 +43,23 @@ export function ProductCard({ product }: ProductCardProps) {
               alt={product.name}
               fill
               className="object-cover transition-transform hover:scale-105"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
           </div>
         </CardHeader>
-        <CardContent className="p-4">
-          <h3 className="text-lg font-semibold text-stone-900">
+        <CardContent className="p-3 sm:p-4">
+          <h3 className="text-base font-semibold text-stone-900 sm:text-lg">
             {product.name}
           </h3>
-          <p className="mt-2 line-clamp-2 text-sm text-stone-600">
+          <p className="mt-2 line-clamp-2 text-xs text-stone-600 sm:text-sm">
             {product.description}
           </p>
         </CardContent>
-        <CardFooter className="flex items-center justify-between p-4 pt-0">
-          <span className="text-xl font-bold text-amber-700">{priceText}</span>
+        <CardFooter className="flex items-center justify-between gap-2 p-3 pt-0 sm:p-4 sm:pt-0">
+          <span className="text-base font-bold text-amber-700 sm:text-xl">{priceText}</span>
           <Button
             size="sm"
-            className="bg-amber-600 hover:bg-amber-700"
+            className="bg-amber-600 hover:bg-amber-700 text-xs sm:text-sm"
           >
             Detail
           </Button>
