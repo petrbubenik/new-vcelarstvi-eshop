@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
         from: "Včelařské potřeby Bubeník <obchod@vcelarstvi-bubenik.cz>",
         to: ["obchod@vcelarstvi-bubenik.cz"],
         subject: `Nová objednávka od ${body.data.customerName}`,
-        reply_to: body.data.customerEmail,
+        replyTo: body.data.customerEmail,
         html: await render(OrderNotificationEmail(body.data)),
       });
 
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
         from: "Včelařské potřeby Bubeník <obchod@vcelarstvi-bubenik.cz>",
         to: [body.data.customerEmail],
         subject: `Potvrzení objednávky #${orderId.slice(0, 8).toUpperCase()}`,
-        reply_to: "obchod@vcelarstvi-bubenik.cz",
+        replyTo: "obchod@vcelarstvi-bubenik.cz",
         html: emailHtml,
         attachments: attachments.length > 0 ? attachments : undefined,
       });
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
         from: "Včelařské potřeby Bubeník <obchod@vcelarstvi-bubenik.cz>",
         to: ["obchod@vcelarstvi-bubenik.cz"],
         subject: `KOPIE: Potvrzení objednávky #${orderId.slice(0, 8).toUpperCase()}`,
-        reply_to: body.data.customerEmail,
+        replyTo: body.data.customerEmail,
         html: emailHtml,
         attachments: attachments.length > 0 ? attachments : undefined,
       });

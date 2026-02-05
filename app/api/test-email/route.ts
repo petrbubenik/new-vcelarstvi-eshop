@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
       from: "Včelařské potřeby Bubeník <obchod@vcelarstvi-bubenik.cz>",
       to: [email],
       subject: `TEST: Potvrzení objednávky ${testOrderData.orderId}`,
-      reply_to: "obchod@vcelarstvi-bubenik.cz",
+      replyTo: "obchod@vcelarstvi-bubenik.cz",
       html: await render(OrderConfirmationEmail(testOrderData)),
       attachments: attachments.length > 0 ? attachments : undefined,
     });
