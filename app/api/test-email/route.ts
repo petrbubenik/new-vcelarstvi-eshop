@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     const attachments = [
       zoouAttachment,
       vopAttachment,
-    ].filter(Boolean);
+    ].filter((a): a is { filename: string; content: string } => a !== null);
 
     await resend.emails.send({
       from: "Včelařské potřeby Bubeník <obchod@vcelarstvi-bubenik.cz>",

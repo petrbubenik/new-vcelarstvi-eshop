@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       const attachments = [
         zoouAttachment,
         vopAttachment,
-      ].filter(Boolean);
+      ].filter((a): a is { filename: string; content: string } => a !== null);
 
       // Render the email HTML once
       const emailHtml = await render(OrderConfirmationEmail({
