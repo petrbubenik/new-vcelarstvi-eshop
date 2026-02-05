@@ -24,6 +24,7 @@ interface OrderNotificationEmailProps {
     quantity: number;
     price: number;
     size?: string;
+    materialType?: string;
   }>;
   deliveryCost: number;
   codFee: number;
@@ -147,7 +148,9 @@ export function OrderNotificationEmail({
             {items.map((item, index) => (
               <div key={index} style={itemContainer}>
                 <Text style={itemText}>
-                  {item.name} {item.size && `(${item.size})`} × {item.quantity} ks
+                  {item.name} {item.materialType && item.size && `(${item.materialType}, ${item.size})`}
+                  {item.materialType && !item.size && `(${item.materialType})`}
+                  {!item.materialType && item.size && `(${item.size})`} × {item.quantity} ks
                 </Text>
                 <Text style={itemPrice}>{formatPrice(item.price * item.quantity)}</Text>
               </div>

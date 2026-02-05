@@ -1,6 +1,5 @@
 import {
   Body,
-  Button,
   Container,
   Head,
   Heading,
@@ -9,39 +8,67 @@ import {
   Preview,
   Section,
   Text,
+  Image,
 } from "@react-email/components";
 
 interface OrderConfirmationEmailProps {
   customerName: string;
+  customerEmail: string;
+  customerPhone: string;
   orderId: string;
   deliveryMethod: string;
-  address?: string;
-  city?: string;
-  postalCode?: string;
+  // Billing address (fakturační adresa)
+  billingAddress?: string;
+  billingCity?: string;
+  billingPostalCode?: string;
+  // Delivery address
+  deliveryAddress?: string;
+  deliveryCity?: string;
+  deliveryPostalCode?: string;
+  deliveryName?: string;
+  differentDeliveryAddr?: boolean;
   paymentMethod: string;
   items: Array<{
     name: string;
     quantity: number;
     price: number;
     size?: string;
+    slug: string;
+    materialType?: string;
   }>;
   deliveryCost: number;
   codFee: number;
   total: number;
+  notes?: string;
+  // Company fields
+  companyName?: string;
+  companyIc?: string;
+  companyDic?: string;
 }
 
 export function OrderConfirmationEmail({
   customerName,
+  customerEmail,
+  customerPhone,
   orderId,
   deliveryMethod,
-  address,
-  city,
-  postalCode,
+  billingAddress = "",
+  billingCity = "",
+  billingPostalCode = "",
+  deliveryAddress = "",
+  deliveryCity = "",
+  deliveryPostalCode = "",
+  deliveryName = "",
+  differentDeliveryAddr = false,
   paymentMethod,
   items,
   deliveryCost,
   codFee,
   total,
+  notes = "",
+  companyName,
+  companyIc,
+  companyDic,
 }: OrderConfirmationEmailProps) {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("cs-CZ", {
@@ -51,363 +78,242 @@ export function OrderConfirmationEmail({
     }).format(price / 100);
   };
 
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat("cs-CZ", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }).format(date);
+  };
+
+  const formatPostalCode = (postalCode: string) => {
+    return postalCode.replace(/^(\d{3})(\d{2})$/, "$1 $2");
+  };
+
   const paymentMethodText = {
-    BANK_TRANSFER: "Bankovní převod",
+    BANK_TRANSFER: "Převodem",
     CASH_ON_DELIVERY: "Dobírka",
-    CASH_IN_PERSON: "Hotově v provozovně",
+    CASH_IN_PERSON: "Hotově",
   };
 
   const deliveryMethodText = {
-    PPL: "Doručení PPL",
+    PPL: "PPL",
     SELF_COLLECTION: "Osobní odběr",
   };
 
-  // PPL + Bank Transfer
-  if (deliveryMethod === "PPL" && paymentMethod === "BANK_TRANSFER") {
-    return (
-      <Html>
-        <Head />
-        <Preview>Potvrzení objednávky #{orderId}</Preview>
-        <Body style={main}>
-          <Container style={container}>
-            <Heading style={heading}>Potvrzení objednávky</Heading>
-            <Text style={text}>
-              Dobrý den {customerName}, děkujeme za Vaši objednávku!
-            </Text>
-            <Text style={text}>
-              Číslo objednávky je: <strong>#{orderId.slice(0, 8).toUpperCase()}</strong>
-            </Text>
+  // Calculate VAT (21%)
+  const totalWithVat = total;
+  const totalWithoutVat = Math.round(total / 1.21);
+  const vatAmount = totalWithVat - totalWithoutVat;
 
-            <Section style={section}>
-              <Heading style={sectionHeading}>Co se děje dál?</Heading>
-              <Text style={text}>
-                Zboží expedujeme po připsání platby na náš bankovní účet. Odeslali
-                jsme Vám potvrzovací e-mail s údaji pro platbu.
-              </Text>
-              <Text style={text}>
-                Bankovní účet: <strong>123456-0123456789/0300</strong>
-              </Text>
-              <Text style={text}>
-                Variabilní symbol: <strong>2000544497</strong>
-              </Text>
-              <Text style={text}>
-                Zpráva pro příjemce: <strong>Včelařské potřeby Bubeník</strong>
-              </Text>
-            </Section>
+  // Calculate subtotal (products only, without delivery and cod fee)
+  const subtotal = total - deliveryCost - codFee;
 
-            <Section style={section}>
-              <Heading style={sectionHeading}>Doručení</Heading>
-              <Text style={text}>
-                Zboží bude doručeno na adresu:
-              </Text>
-              <Text style={text}>{address}</Text>
-              <Text style={text}>
-                {postalCode} {city}
-              </Text>
-              <Text style={text}>
-                Doručení obvykle do 2 pracovních dnů.
-              </Text>
-              {deliveryCost === 0 && (
-                <Text style={infoText}>
-                  Doprava je ZDARMA (hodnota objednávky nad 2 500 Kč)
-                </Text>
-              )}
-              {deliveryCost > 0 && (
-                <Text style={infoText}>Cena dopravy: {formatPrice(deliveryCost)}</Text>
-              )}
-            </Section>
+  // Bank details
+  const bankAccount = "1209442007/2700";
 
-            <Section style={section}>
-              <Heading style={sectionHeading}>Objednané položky</Heading>
-              {items.map((item, index) => (
-                <div key={index} style={itemContainer}>
-                  <Text style={itemText}>
-                    {item.name} {item.size && `(${item.size})`} × {item.quantity} ks
-                  </Text>
-                  <Text style={itemPrice}>{formatPrice(item.price * item.quantity)}</Text>
-                </div>
-              ))}
-            </Section>
+  // Logo URL - use absolute URL
+  const logoUrl = "https://shop.vcelarstvi-bubenik.cz/images/logo.png";
 
-            <Section style={section}>
-              <Heading style={sectionHeading}>Celková cena</Heading>
-              <Text style={text}>Mezisoučet: {formatPrice(total - deliveryCost)}</Text>
-              <Text style={text}>Doprava: {deliveryCost === 0 ? "ZDARMA" : formatPrice(deliveryCost)}</Text>
-              <Text style={totalText} style={totalText}>
-                Celkem k úhradě: {formatPrice(total)}
-              </Text>
-              <Text style={infoText}>
-                Cena zahrnuje DPH 21%
-              </Text>
-            </Section>
-
-            <Text style={footer}>
-              Pokud máte jakékoliv dotazy, neváhejte nás kontaktovat na
-              obchod@vcelarstvi-bubenik.cz
-            </Text>
-          </Container>
-        </Body>
-      </Html>
-    );
-  }
-
-  // PPL + COD
-  if (deliveryMethod === "PPL" && paymentMethod === "CASH_ON_DELIVERY") {
-    return (
-      <Html>
-        <Head />
-        <Preview>Potvrzení objednávky #{orderId}</Preview>
-        <Body style={main}>
-          <Container style={container}>
-            <Heading style={heading}>Potvrzení objednávky</Heading>
-            <Text style={text}>
-              Dobrý den {customerName}, děkujeme za Vaši objednávku!
-            </Text>
-            <Text style={text}>
-              Číslo objednávky je: <strong>#{orderId.slice(0, 8).toUpperCase()}</strong>
-            </Text>
-
-            <Section style={section}>
-              <Heading style={sectionHeading}>Co se děje dál?</Heading>
-              <Text style={text}>
-                Zboží bude doručeno na Vaši adresu prostřednictvím přepravce PPL.
-                Zaplatíte při převzetí zboží v hotovosti.
-              </Text>
-              <Text style={text}>
-                Celková částka k úhradě: {formatPrice(total)}
-              </Text>
-              <Text style={infoText}>
-                Příplatek za dobírku (100 Kč) je zahrnut v ceně.
-              </Text>
-            </Section>
-
-            <Section style={section}>
-              <Heading style={sectionHeading}>Doručovací adresa</Heading>
-              <Text style={text}>{address}</Text>
-              <Text style={text}>
-                {postalCode} {city}
-              </Text>
-              <Text style={text}>
-                Doručení obvykle do 2 pracovních dnů.
-              </Text>
-              {deliveryCost === 0 && (
-                <Text style={infoText}>
-                  Doprava je ZDARMA (hodnota objednávky nad 2 500 Kč)
-                </Text>
-              )}
-            </Section>
-
-            <Section style={section}>
-              <Heading style={sectionHeading}>Objednané položky</Heading>
-              {items.map((item, index) => (
-                <div key={index} style={itemContainer}>
-                  <Text style={itemText}>
-                    {item.name} {item.size && `(${item.size})`} × {item.quantity} ks
-                  </Text>
-                  <Text style={itemPrice}>{formatPrice(item.price * item.quantity)}</Text>
-                </div>
-              ))}
-            </Section>
-
-            <Section style={section}>
-              <Heading style={sectionHeading}>Shrnutí ceny</Heading>
-              <Text style={text}>Mezisoučet: {formatPrice(total - deliveryCost - codFee)}</Text>
-              <Text style={text}>Doprava: {deliveryCost === 0 ? "ZDARMA" : formatPrice(deliveryCost)}</Text>
-              <Text style={text}>Dobírka: {formatPrice(codFee)}</Text>
-              <Text style={totalText} style={totalText}>
-                Celkem k úhradě: {formatPrice(total)}
-              </Text>
-              <Text style={infoText}>
-                Cena zahrnuje DPH 21%
-              </Text>
-            </Section>
-
-            <Text style={footer}>
-              Pokud máte jakékoliv dotazy, neváhejte nás kontaktovat na
-              obchod@vcelarstvi-bubenik.cz
-            </Text>
-          </Container>
-        </Body>
-      </Html>
-    );
-  }
-
-  // Self-collection + Bank Transfer
-  if (deliveryMethod === "SELF_COLLECTION" && paymentMethod === "BANK_TRANSFER") {
-    return (
-      <Html>
-        <Head />
-        <Preview>Potvrzení objednávky #{orderId}</Preview>
-        <Body style={main}>
-          <Container style={container}>
-            <Heading style={heading}>Potvrzení objednávky</Heading>
-            <Text style={text}>
-              Dobrý den {customerName}, děkujeme za Vaši objednávku!
-            </Text>
-            <Text style={text}>
-              Číslo objednávky je: <strong>#{orderId.slice(0, 8).toUpperCase()}</strong>
-            </Text>
-
-            <Section style={section}>
-              <Heading style={sectionHeading}>Co se děje dál?</Heading>
-              <Text style={text}>
-                Po obdržení této zprávy Vám zboží připravíme k vyzvednutí.
-                Odesíláme Vám e-mail, že zboží je připraveno k vyzvednutí.
-              </Text>
-              <Text style={text}>
-                <strong>Adresa pro vyzvednutí:</strong>
-              </Text>
-              <Text style={text}>Polní 46, 789 61 Bludov</Text>
-              <Text style={text}>
-                Zboží bude pro Vás rezervováno na 5 pracovních dnů.
-              </Text>
-            </Section>
-
-            <Section style={section}>
-              <Heading style={sectionHeading}>Platba</Heading>
-              <Text style={text}>
-                Platbu prosím uhraďte předem na náš bankovní účet:
-              </Text>
-              <Text style={text}>
-                Bankovní účet: <strong>123456-0123456789/0300</strong>
-              </Text>
-              <Text style={text}>
-                Variabilní symbol: <strong>2000544497</strong>
-              </Text>
-              <Text style={text}>
-                Zpráva pro příjemce: <strong>Včelařské potřeby Bubeník</strong>
-              </Text>
-              <Text style={text}>
-                Celkovou částku uhraďte do 10 dnů.
-              </Text>
-            </Section>
-
-            <Section style={section}>
-              <Heading style={sectionHeading}>Objednané položky</Heading>
-              {items.map((item, index) => (
-                <div key={index} style={itemContainer}>
-                  <Text style={itemText}>
-                    {item.name} {item.size && `(${item.size})`} × {item.quantity} ks
-                  </Text>
-                  <Text style={itemPrice}>{formatPrice(item.price * item.quantity)}</Text>
-                </div>
-              ))}
-            </Section>
-
-            <Section style={section}>
-              <Heading style={sectionHeading}>Celková cena</Heading>
-              <Text style={totalText} style={totalText}>
-                Celkem k úhradě: {formatPrice(total)}
-              </Text>
-              <Text style={infoText}>
-                Osobní odběr je zdarma
-              </Text>
-              <Text style={infoText}>
-                Cena zahrnuje DPH 21%
-              </Text>
-            </Section>
-
-            <Text style={footer}>
-              Pokud máte jakékoliv dotazy, neváhejte nás kontaktovat na
-              obchod@vcelarstvi-bubenik.cz
-            </Text>
-          </Container>
-        </Body>
-      </Html>
-    );
-  }
-
-  // Self-collection + Cash in person
-  if (deliveryMethod === "SELF_COLLECTION" && paymentMethod === "CASH_IN_PERSON") {
-    return (
-      <Html>
-        <Head />
-        <Preview>Potvrzení objednávky #{orderId}</Preview>
-        <Body style={main}>
-          <Container style={container}>
-            <Heading style={heading}>Potvrzení objednávky</Heading>
-            <Text style={text}>
-              Dobrý den {customerName}, děkujeme za Vaši objednávku!
-            </Text>
-            <Text style={text}>
-              Číslo objednávky je: <strong>#{orderId.slice(0, 8).toUpperCase()}</strong>
-            </Text>
-
-            <Section style={section}>
-              <Heading style={sectionHeading}>Co se děje dál?</Heading>
-              <Text style={text}>
-                Po obdržení této zprávy Vám zboží připravíme k vyzvednutí.
-                Odesíláme Vám e-mail, že zboží je připraveno k vyzvednutí.
-              </Text>
-              <Text style={text}>
-                <strong>Adresa pro vyzvednutí:</strong>
-              </Text>
-              <Text style={text}>Polní 46, 789 61 Bludov</Text>
-              <Text style={text}>
-                Platba v hotovosti při vyzvednutí.
-              </Text>
-              <Text style={text}>
-                Zboží bude pro Vás rezervováno na 5 pracovních dnů.
-              </Text>
-            </Section>
-
-            <Section style={section}>
-              <Heading style={sectionHeading}>Objednané položky</Heading>
-              {items.map((item, index) => (
-                <div key={index} style={itemContainer}>
-                  <Text style={itemText}>
-                    {item.name} {item.size && `(${item.size})`} × {item.quantity} ks
-                  </Text>
-                  <Text style={itemPrice}>{formatPrice(item.price * item.quantity)}</Text>
-                </div>
-              ))}
-            </Section>
-
-            <Section style={section}>
-              <Heading style={sectionHeading}>Celková cena</Heading>
-              <Text style={totalText} style={totalText}>
-                Celkem k úhradě: {formatPrice(total)}
-              </Text>
-              <Text style={infoText}>
-                Platba v hotovosti při vyzvednutí
-              </Text>
-              <Text style={infoText}>
-                Osobní odběr je zdarma
-              </Text>
-              <Text style={infoText}>
-                Cena zahrnuje DPH 21%
-              </Text>
-            </Section>
-
-            <Text style={footer}>
-              Pokud máte jakékoliv dotazy, neváhejte nás kontaktovat na
-              obchod@vcelarstvi-bubenik.cz
-            </Text>
-          </Container>
-        </Body>
-      </Html>
-    );
-  }
-
-  // Default fallback
   return (
     <Html>
       <Head />
-      <Preview>Potvrzení objednávky #{orderId}</Preview>
+      <Preview>Potvrzení objednávky {orderId}</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Heading style={heading}>Potvrzení objednávky</Heading>
-          <Text style={text}>
-            Dobrý den {customerName}, děkujeme za Vaši objednávku!
-          </Text>
-          <Text style={text}>
-            Číslo objednávky je: <strong>#{orderId.slice(0, 8).toUpperCase()}</strong>
-          </Text>
+          {/* Logo */}
+          <div style={{ textAlign: "center", marginBottom: "20px" }}>
+            <img
+              src={logoUrl}
+              alt="Včelařské potřeby Bubeník"
+              style={{ width: "120px", height: "auto", display: "block", margin: "0 auto" }}
+            />
+          </div>
 
-          <Text style={footer}>
-            Pokud máte jakékoliv dotazy, neváhejte nás kontaktovat na
-            obchod@vcelarstvi-bubenik.cz
+          <Heading style={heading}>Potvrzení objednávky</Heading>
+
+          <Text style={text}>Vážený zákazníku,</Text>
+          <Text style={text}>Vaši objednávku jsem v pořádku přijal.</Text>
+
+          <Text style={text}>
+            Číslo objednávky: <strong>{orderId}</strong>
           </Text>
+          <Text style={text}>Datum: {formatDate(new Date())}</Text>
+
+          <Section style={section}>
+            {paymentMethod === "BANK_TRANSFER" ? (
+              <>
+                <Text style={text}>
+                  {deliveryMethod === "SELF_COLLECTION"
+                    ? "Zboží pro Vás bude připraveno na adrese provozovny ihned po připsání celkové částky "
+                    : "Zboží Vám odešlu ihned po připsání celkové částky "}
+                  <strong>{formatPrice(totalWithVat)}</strong> na můj účet:
+                </Text>
+                <Text style={text}>Číslo účtu: <strong>{bankAccount}</strong></Text>
+                <Text style={text}>
+                  Variabilní symbol platby: <strong>{orderId}</strong>
+                </Text>
+              </>
+            ) : paymentMethod === "CASH_ON_DELIVERY" ? (
+              <>
+                <Text style={text}>
+                  Zaplatíte při převzetí zboží přímo kurýrovi PPL. Celková částka k úhradě:{" "}
+                  <strong>{formatPrice(totalWithVat)}</strong>
+                </Text>
+                <Text style={text}>
+                  Po odeslání zboží Vám zašlu trackovací kód pro sledování zásilky.
+                </Text>
+              </>
+            ) : (
+              <>
+                <Text style={text}>
+                  Platba v hotovosti při osobním vyzvednutí. Celková částka k úhradě:{" "}
+                  <strong>{formatPrice(totalWithVat)}</strong>
+                </Text>
+                <Text style={text}>
+                  O možnosti vyzvednout objednané zboží Vás budu informovat v dalším emailu.
+                </Text>
+              </>
+            )}
+          </Section>
+
+          <Heading style={sectionHeading}>Obsah objednávky</Heading>
+          <Section style={itemsSection}>
+            <table style={itemsTable} cellPadding="0" cellSpacing="0" width="100%">
+              {items.map((item, index) => (
+                <tr key={index}>
+                  <td style={itemNameCell} width="50%">
+                    <Link
+                      href={`${process.env.NEXT_PUBLIC_SITE_URL || "https://shop.vcelarstvi-bubenik.cz"}/produkt/${item.slug}`}
+                      style={linkStyle}
+                    >
+                      {item.name}
+                      {item.materialType && item.size && ` (${item.materialType}, ${item.size})`}
+                      {item.materialType && !item.size && ` (${item.materialType})`}
+                      {!item.materialType && item.size && ` (${item.size})`}
+                    </Link>
+                  </td>
+                  <td style={itemDetailsCell} width="25%">
+                    {item.quantity} ks × {formatPrice(item.price)}
+                  </td>
+                  <td style={itemPriceCell} width="25%">
+                    {formatPrice(item.price * item.quantity)}
+                  </td>
+                </tr>
+              ))}
+              {deliveryMethod === "PPL" && (
+                <tr>
+                  <td style={itemDetailsCell}>
+                    {deliveryMethodText[deliveryMethod as keyof typeof deliveryMethodText]}
+                  </td>
+                  <td style={itemDetailsCell}></td>
+                  <td style={itemPriceCell}>
+                    {formatPrice(deliveryCost)}
+                  </td>
+                </tr>
+              )}
+              <tr>
+                <td style={itemDetailsCell}>
+                  {paymentMethodText[paymentMethod as keyof typeof paymentMethodText]}
+                </td>
+                <td style={itemDetailsCell}></td>
+                <td style={itemPriceCell}>
+                  {formatPrice(codFee)}
+                </td>
+              </tr>
+            </table>
+          </Section>
+
+          <Section style={summarySection}>
+            <Text style={totalLine}>
+              <strong>CENA CELKEM: {formatPrice(totalWithVat)}</strong>
+            </Text>
+            <Text style={subtotalLine}>
+              Cena bez DPH: {formatPrice(totalWithoutVat)}
+            </Text>
+            <Text style={subtotalLine}>
+              DPH: {formatPrice(vatAmount)}
+            </Text>
+          </Section>
+
+          {/* Two columns for billing and delivery addresses */}
+          <Section style={addressSection}>
+            <table
+              style={addressTable}
+              cellPadding="0"
+              cellSpacing="0"
+              width="100%"
+            >
+              <tr>
+                <td style={addressColumn} width="48%" valign="top">
+                  <Heading style={addressHeading}>Fakturační údaje</Heading>
+                  <Text style={text}>Jméno a příjmení: {customerName}</Text>
+                  {companyName && (
+                    <Text style={text}>Firma: {companyName}</Text>
+                  )}
+                  {companyIc && (
+                    <Text style={text}>IČ: {companyIc}</Text>
+                  )}
+                  {companyDic && (
+                    <Text style={text}>DIČ: {companyDic}</Text>
+                  )}
+                  {billingAddress && (
+                    <Text style={text}>Ulice: {billingAddress}</Text>
+                  )}
+                  {billingCity && (
+                    <Text style={text}>Město: {billingCity}</Text>
+                  )}
+                  {billingPostalCode && (
+                    <Text style={text}>PSČ: {formatPostalCode(billingPostalCode)}</Text>
+                  )}
+                  <Text style={text}>Stát: Česká republika</Text>
+                  <Text style={text}>E-mail: <a href={`mailto:${customerEmail}`} style={inlineLinkStyle}>{customerEmail}</a></Text>
+                  <Text style={text}>Telefon: <a href={`tel:${customerPhone.replace(/\s/g, "")}`} style={inlineLinkStyle}>{customerPhone}</a></Text>
+                  {notes && (
+                    <Text style={text}>Poznámka: {notes}</Text>
+                  )}
+                </td>
+                <td style={addressSpacer} width="4%"></td>
+                <td style={addressColumn} width="48%" valign="top">
+                  <Heading style={addressHeading}>Doručovací údaje</Heading>
+                  {deliveryMethod === "SELF_COLLECTION" ? (
+                    <Text style={text}>
+                      Osobní vyzvednutí na adrese: Polní 46, 789 61 Bludov
+                    </Text>
+                  ) : (
+                    <>
+                      <Text style={text}>Jméno: {deliveryName}</Text>
+                      {differentDeliveryAddr && companyName && (
+                        <Text style={text}>Firma: {companyName}</Text>
+                      )}
+                      {deliveryAddress && (
+                        <Text style={text}>Ulice: {deliveryAddress}</Text>
+                      )}
+                      {deliveryCity && (
+                        <Text style={text}>Město: {deliveryCity}</Text>
+                      )}
+                      {deliveryPostalCode && (
+                        <Text style={text}>PSČ: {formatPostalCode(deliveryPostalCode)}</Text>
+                      )}
+                      <Text style={text}>Stát: Česká republika</Text>
+                    </>
+                  )}
+                </td>
+              </tr>
+            </table>
+          </Section>
+
+          <Text style={thankYouText}>Děkuji za objednávku.</Text>
+
+          <Section style={footerSection}>
+            <Text style={text}>Petr Bubeník - včelařské potřeby</Text>
+            <Text style={text}>
+              tel.: <a href="tel:+420777553319" style={inlineLinkStyle}>+420 777 553 319</a>
+            </Text>
+            <Text style={text}>
+              email: <a href="mailto:obchod@vcelarstvi-bubenik.cz" style={inlineLinkStyle}>obchod@vcelarstvi-bubenik.cz</a>
+            </Text>
+          </Section>
         </Container>
       </Body>
     </Html>
@@ -415,7 +321,7 @@ export function OrderConfirmationEmail({
 }
 
 const main = {
-  backgroundColor: "#f6f6f6",
+  backgroundColor: "#ffffff",
   color: "#1a1a1a",
   fontFamily:
     '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
@@ -426,20 +332,19 @@ const container = {
   margin: "0 auto",
   padding: "20px",
   maxWidth: "600px",
-  borderRadius: "8px",
-  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
 };
 
 const heading = {
   fontSize: "24px",
   fontWeight: "bold",
   color: "#1a1a1a",
+  textAlign: "center" as const,
+  marginBottom: "10px",
 };
 
 const section = {
   marginBottom: "20px",
-  padding: "20px 0",
-  borderBottom: "1px solid #e5e5e5e5",
+  padding: "10px 0",
 };
 
 const sectionHeading = {
@@ -449,43 +354,145 @@ const sectionHeading = {
   color: "#1a1a1a",
 };
 
-const text = {
+const itemsSection = {
+  backgroundColor: "#f8f9fa",
+  border: "1px solid #e9ecef",
+  borderRadius: "8px",
+  padding: "10px",
+};
+
+const itemsTable = {
+  width: "100%" as const,
+  borderCollapse: "collapse" as const,
+};
+
+const itemNameCell = {
+  padding: "8px 4px",
   fontSize: "14px",
-  lineHeight: "24px",
+  verticalAlign: "top" as const,
+};
+
+const itemDetailsCell = {
+  padding: "8px 4px",
+  fontSize: "14px",
+  color: "#666666",
+  verticalAlign: "top" as const,
+};
+
+const itemPriceCell = {
+  padding: "8px 4px",
+  fontSize: "14px",
+  fontWeight: "bold",
+  color: "#1a1a1a",
+  textAlign: "right" as const,
+  verticalAlign: "top" as const,
+};
+
+const summarySection = {
+  backgroundColor: "#fffbeb",
+  border: "1px solid #fcd34d",
+  borderRadius: "8px",
+  padding: "15px",
+};
+
+const addressSection = {
+  marginTop: "10px",
+};
+
+const addressTable = {
+  width: "100%" as const,
+  borderCollapse: "collapse" as const,
+};
+
+const addressColumn = {
+  fontSize: "14px",
+};
+
+const addressSpacer = {
+  fontSize: "0",
+  lineHeight: "0",
+};
+
+const addressHeading = {
+  fontSize: "16px",
+  fontWeight: "bold",
+  marginBottom: "10px",
   color: "#1a1a1a",
 };
 
+const footerSection = {
+  backgroundColor: "#fef9f3",
+  border: "1px solid #fcd34d",
+  borderRadius: "8px",
+  padding: "15px",
+  marginTop: "20px",
+};
+
+const text = {
+  fontSize: "14px",
+  lineHeight: "1.6",
+  color: "#1a1a1a",
+  margin: "5px 0",
+};
+
+const thankYouText = {
+  fontSize: "14px",
+  lineHeight: "1.6",
+  color: "#1a1a1a",
+  margin: "20px 0",
+};
+
 const itemContainer = {
-  marginBottom: "10px",
-  paddingBottom: "10px",
-  borderBottom: "1px solid #f0f0f0",
+  marginBottom: "12px",
+  paddingBottom: "12px",
+  borderBottom: "1px solid #e9ecef",
 };
 
 const itemText = {
   fontSize: "14px",
-  marginBottom: "4px",
+  color: "#1a1a1a",
+  margin: "2px 0",
+};
+
+const itemDetails = {
+  fontSize: "14px",
+  color: "#666666",
+  margin: "2px 0",
 };
 
 const itemPrice = {
   fontSize: "14px",
   fontWeight: "bold",
   color: "#1a1a1a",
+  margin: "4px 0 2px 0",
 };
 
-const totalText = {
+const totalLine = {
   fontSize: "18px",
   fontWeight: "bold",
   color: "#1a1a1a",
+  textAlign: "right" as const,
+  marginBottom: "5px",
 };
 
-const infoText = {
+const subtotalLine = {
   fontSize: "14px",
-  color: "#6b7280",
-  fontStyle: "italic",
+  color: "#1a1a1a",
+  textAlign: "right" as const,
+  margin: "0",
 };
 
-const footer = {
-  fontSize: "12px",
-  color: "#6b7280",
-  marginTop: "40px",
+const linkStyle = {
+  fontSize: "14px",
+  color: "#2563eb",
+  textDecoration: "underline",
+  display: "block",
+  margin: "0 0 4px 0",
+  fontWeight: "500",
+};
+
+const inlineLinkStyle = {
+  fontSize: "14px",
+  color: "#2563eb",
+  textDecoration: "underline",
 };

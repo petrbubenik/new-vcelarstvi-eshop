@@ -67,11 +67,24 @@ export default async function ThankYouPage({
 
   // Bank details for Czech bank transfer
   const bankDetails = {
-    accountNumber: "123456789/0300",
-    iban: "CZ65 0300 0000 0000 0123 4567",
-    bic: "CEKOCZPP",
+    accountNumber: "1209442007/2700",
     variableSymbol: orderId.slice(-8).toUpperCase(),
   };
+
+  // Delivery and payment method texts
+  const paymentMethodText = {
+    BANK_TRANSFER: "Převodem",
+    CASH_ON_DELIVERY: "Dobírka",
+    CASH_IN_PERSON: "Hotově",
+  };
+
+  const deliveryMethodText = {
+    PPL: "PPL",
+    SELF_COLLECTION: "Osobní odběr",
+  };
+
+  // Calculate subtotal (products only)
+  const subtotal = order.total - order.deliveryCost - order.codFee;
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
@@ -82,7 +95,7 @@ export default async function ThankYouPage({
           </div>
         </div>
         <h1 className="mb-2 text-3xl font-bold text-stone-900">
-          Děkujeme za vaši objednávku!
+          Děkuji za vaši objednávku!
         </h1>
         <p className="text-lg text-stone-600">
           Vaše objednávka byla úspěšně přijata.
@@ -130,18 +143,6 @@ export default async function ThankYouPage({
                       {bankDetails.accountNumber}
                     </span>
                   </div>
-                  <div className="flex justify-between border-b border-amber-100 pb-2">
-                    <span className="font-medium text-stone-600">IBAN:</span>
-                    <span className="font-mono text-stone-900">
-                      {bankDetails.iban}
-                    </span>
-                  </div>
-                  <div className="flex justify-between border-b border-amber-100 pb-2">
-                    <span className="font-medium text-stone-600">SWIFT/BIC:</span>
-                    <span className="font-mono text-stone-900">
-                      {bankDetails.bic}
-                    </span>
-                  </div>
                   <div className="flex justify-between">
                     <span className="font-medium text-stone-600">
                       Variabilní symbol:
@@ -153,9 +154,36 @@ export default async function ThankYouPage({
                 </div>
               </div>
               <p className="text-xs text-stone-500">
-                Zboží bude expedováno po připsání platby na náš účet, obvykle
-                do 1-2 pracovních dnů.
+                {order.deliveryMethod === "SELF_COLLECTION"
+                  ? "Zboží pro Vás bude připraveno na adrese provozovny po připsání platby na náš účet, obvykle do 1-2 pracovních dnů."
+                  : "Zboží bude expedováno po připsání platby na náš účet, obvykle do 1-2 pracovních dnů."}
               </p>
+            </CardContent>
+          </Card>
+        ) : order.paymentMethod === "CASH_IN_PERSON" ? (
+          <Card className="border-amber-200 bg-amber-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Package className="h-5 w-5 text-amber-700" />
+                Platba v hotovosti při osobním vyzvednutí
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="rounded-lg bg-white p-4">
+                <p className="text-sm text-stone-600">
+                  O možnosti vyzvednout objednané zboží Vás budu informovat v dalším emailu.
+                </p>
+                <div className="mt-3 rounded border border-amber-200 bg-amber-100 p-3">
+                  <div className="flex justify-between">
+                    <span className="font-medium text-stone-700">
+                      Celková částka k úhradě:
+                    </span>
+                    <span className="font-bold text-amber-700">
+                      {formatPrice(order.total)}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         ) : (
@@ -169,8 +197,7 @@ export default async function ThankYouPage({
             <CardContent className="space-y-3">
               <div className="rounded-lg bg-white p-4">
                 <p className="text-sm text-stone-600">
-                  Zaplatíte při převzetí zboží. Česká pošta Vám vydá zboží po
-                  uhrazení celé částky v hotovosti nebo kartou.
+                  Zaplatíte při převzetí zboží přímo kurýrovi PPL.
                 </p>
                 <div className="mt-3 rounded border border-amber-200 bg-amber-100 p-3">
                   <div className="flex justify-between">
@@ -256,6 +283,34 @@ export default async function ThankYouPage({
                     </p>
                   </div>
                 ))}
+                {/* Delivery */}
+                {order.deliveryCost > 0 && (
+                  <div className="flex items-center gap-3 border-b border-stone-100 pb-3">
+                    <div className="h-12 w-12 flex-shrink-0"></div>
+                    <div className="flex-1">
+                      <p className="text-sm text-stone-600">
+                        {deliveryMethodText[order.deliveryMethod as keyof typeof deliveryMethodText]}
+                      </p>
+                    </div>
+                    <p className="font-semibold text-stone-900">
+                      {formatPrice(order.deliveryCost)}
+                    </p>
+                  </div>
+                )}
+                {/* Payment */}
+                {order.codFee > 0 && (
+                  <div className="flex items-center gap-3 border-b border-stone-100 pb-3">
+                    <div className="h-12 w-12 flex-shrink-0"></div>
+                    <div className="flex-1">
+                      <p className="text-sm text-stone-600">
+                        {paymentMethodText[order.paymentMethod as keyof typeof paymentMethodText]}
+                      </p>
+                    </div>
+                    <p className="font-semibold text-stone-900">
+                      {formatPrice(order.codFee)}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 

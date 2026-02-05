@@ -37,6 +37,46 @@ const orderSchema = z.object({
   total: z.number().int().positive(),
 });
 
+// Helper function to generate custom order ID in format YYDDMM01
+async function generateOrderId(prisma: any): Promise<string> {
+  const now = new Date();
+
+  // Format: YYDDMM - Year (2 digits), Day (2 digits), Month (2 digits)
+  const year = now.getFullYear().toString().slice(-2); // Last 2 digits of year
+  const day = now.getDate().toString().padStart(2, '0');
+  const month = (now.getMonth() + 1).toString().padStart(2, '0');
+
+  const prefix = `${year}${day}${month}`;
+
+  // Count existing orders for today with the same prefix
+  const existingOrders = await prisma.order.findMany({
+    where: {
+      id: {
+        startsWith: prefix,
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  // Extract sequence numbers and find the highest
+  let maxSequence = 0;
+  for (const order of existingOrders) {
+    const sequencePart = order.id.slice(-2);
+    const sequence = parseInt(sequencePart, 10);
+    if (!isNaN(sequence)) {
+      maxSequence = Math.max(maxSequence, sequence);
+    }
+  }
+
+  // Next sequence number
+  const nextSequence = maxSequence + 1;
+
+  // Format as YYDDMMNN (e.g., 25020101)
+  return `${prefix}${nextSequence.toString().padStart(2, '0')}`;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -99,7 +139,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify stock and calculate server-side total
-    let serverTotal = validatedData.deliveryCost || 0;
+    let serverTotal = (validatedData.deliveryCost || 0) + (validatedData.codFee || 0);
     const orderItemsToCreate: Array<{
       productId: string;
       variantId: string | null;
@@ -116,6 +156,8 @@ export async function POST(request: NextRequest) {
       quantity: number;
       price: number;
       size?: string;
+      slug: string;
+      materialType?: string;
     }> = [];
 
     for (const item of validatedData.items) {
@@ -158,6 +200,8 @@ export async function POST(request: NextRequest) {
         quantity: item.quantity,
         price: item.priceAtPurchase,
         size: item.size || variant.size || undefined,
+        slug: variant.product.slug,
+        materialType: variant.materialType || undefined,
       });
     }
 
@@ -171,9 +215,13 @@ export async function POST(request: NextRequest) {
 
     // Create order and update stock in a transaction
     const result = await prisma.$transaction(async (tx) => {
+      // Generate custom order ID
+      const orderId = await generateOrderId(tx);
+
       // Create order
       const order = await tx.order.create({
         data: {
+          id: orderId,
           customerName: validatedData.customerName,
           email: validatedData.email,
           phone: validatedData.phone,
@@ -252,16 +300,25 @@ export async function POST(request: NextRequest) {
         data: {
           customerName: validatedData.customerName,
           customerEmail: validatedData.email,
+          customerPhone: validatedData.phone,
           deliveryMethod: validatedData.deliveryMethod,
-          // Use the actual delivery address (different address if selected, otherwise billing address)
-          address: validatedData.differentDeliveryAddr ? validatedData.deliveryAddress || "" : validatedData.address || "",
-          city: validatedData.differentDeliveryAddr ? validatedData.deliveryCity || "" : validatedData.city || "",
-          postalCode: validatedData.differentDeliveryAddr ? validatedData.deliveryPostalCode || "" : validatedData.postalCode || "",
+          // Billing address (fakturační adresa)
+          billingAddress: validatedData.address || "",
+          billingCity: validatedData.city || "",
+          billingPostalCode: validatedData.postalCode || "",
+          // Delivery address (if different)
+          deliveryAddress: validatedData.differentDeliveryAddr ? (validatedData.deliveryAddress || "") : (validatedData.address || ""),
+          deliveryCity: validatedData.differentDeliveryAddr ? (validatedData.deliveryCity || "") : (validatedData.city || ""),
+          deliveryPostalCode: validatedData.differentDeliveryAddr ? (validatedData.deliveryPostalCode || "") : (validatedData.postalCode || ""),
+          deliveryName: validatedData.differentDeliveryAddr ? (validatedData.deliveryName || "") : validatedData.customerName,
+          // Different delivery address flag
+          differentDeliveryAddr: validatedData.differentDeliveryAddr || false,
           paymentMethod: validatedData.paymentMethod,
           items: emailItems,
           deliveryCost: validatedData.deliveryCost || 0,
           codFee: validatedData.codFee || 0,
           total: validatedData.total,
+          notes: validatedData.notes || "",
           // Add company info if applicable
           ...(validatedData.isCompany && {
             companyName: validatedData.companyName,

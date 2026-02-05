@@ -769,7 +769,7 @@ export default function CheckoutPage() {
               >
                 {isSubmitting
                   ? "Zpracovávám..."
-                  : "Odeslat objednávku"}
+                  : "Objednat s povinností platby"}
               </Button>
             </form>
           </Form>

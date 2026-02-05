@@ -36,7 +36,7 @@ model ProductVariant {
 }
 
 model Order {
-  id                    String   @id @default(cuid())
+  id                    String   @id
   customerName          String
   email                 String
   phone                 String
