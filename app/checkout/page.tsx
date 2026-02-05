@@ -274,11 +274,12 @@ export default function CheckoutPage() {
       }
 
       const result = await response.json();
-      clearCart();
       toast.success("Objednávka úspěšně vytvořena!", {
         icon: <Check className="h-5 w-5 text-green-600" />,
       });
       router.push(`/dekujeme/${result.orderId}`);
+      // Clear cart after redirect starts
+      setTimeout(() => clearCart(), 100);
     } catch (error) {
       console.error("Order error:", error);
       toast.error(
