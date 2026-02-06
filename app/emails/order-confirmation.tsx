@@ -8,7 +8,7 @@ import {
   Preview,
   Section,
   Text,
-  Image,
+  Img,
 } from "@react-email/components";
 
 interface OrderConfirmationEmailProps {
