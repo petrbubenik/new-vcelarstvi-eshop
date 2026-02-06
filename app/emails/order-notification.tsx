@@ -168,7 +168,7 @@ export function OrderNotificationEmail({
             {codFee > 0 && (
               <Text style={text}>Dobírka: {formatPrice(codFee)}</Text>
             )}
-            <Text style={totalText} style={totalText}>
+            <Text style={totalText}>
               Celkem: {formatPrice(total)}
             </Text>
           </Section>
