@@ -4,7 +4,13 @@ import { ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Obchodní podmínky | Včelařské potřeby Bubeník",
-  description: "Obchodní podmínky pro nákup včelařských potřeb",
+  description: "Obchodní podmínky pro nákup včelařských potřeb. Reklamační práva, vrácení zboží, doručování, platby a další důležité informace.",
+  openGraph: {
+    title: "Obchodní podmínky | Včelařské potřeby Bubeník",
+    description: "Obchodní podmínky pro nákup včelařských potřeb.",
+    url: "https://shop.vcelarstvi-bubenik.cz/obchodni-podminky",
+    type: "website",
+  },
 };
 
 export default function ObchodniPodminkyPage() {

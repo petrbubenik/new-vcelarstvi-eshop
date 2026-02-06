@@ -29,6 +29,10 @@ export async function generateMetadata({
   return {
     title: `Děkujeme za objednávku ${orderId}`,
     description: "Vaše objednávka byla úspěšně přijata.",
+    robots: {
+      index: false,
+      follow: false,
+    },
   };
 }
 

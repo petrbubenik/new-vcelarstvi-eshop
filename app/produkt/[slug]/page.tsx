@@ -86,83 +86,116 @@ export default async function ProductPage({
   const inStock = product.variants.some((v) => v.stock > 0);
   const additionalImages = product.images ? JSON.parse(product.images) : [];
 
+  // Structured data for SEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description,
+    image: product.image,
+    brand: {
+      "@type": "Brand",
+      name: "Včelařské potřeby Bubeník",
+    },
+    offers: {
+      "@type": "AggregateOffer",
+      lowPrice: product.variants[0]?.price
+        ? (product.variants[0].price / 100)
+        : 0,
+      highPrice: product.variants[product.variants.length - 1]?.price
+        ? (product.variants[product.variants.length - 1].price / 100)
+        : 0,
+      priceCurrency: "CZK",
+      availability: inStock
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+      url: `https://shop.vcelarstvi-bubenik.cz/produkt/${product.slug}`,
+    },
+  };
+
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
-      <Link
-        href="/"
-        className="mb-6 inline-flex items-center text-sm text-amber-700 hover:text-amber-800"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Zpět na produkty
-      </Link>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+        <Link
+          href="/"
+          className="mb-6 inline-flex items-center text-sm text-amber-700 hover:text-amber-800"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Zpět na produkty
+        </Link>
 
-      <div className="grid gap-8 lg:grid-cols-2">
-        <div className="space-y-4">
-          <div className="relative aspect-square overflow-hidden rounded-xl bg-stone-100">
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              className="object-cover"
-              priority
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
+        <div className="grid gap-8 lg:grid-cols-2">
+          <div className="space-y-4">
+            <div className="relative aspect-square overflow-hidden rounded-xl bg-stone-100">
+              <Image
+                src={product.image}
+                alt={product.name}
+                fill
+                className="object-cover"
+                priority
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </div>
+            {additionalImages.length > 1 && (
+              <div className="grid grid-cols-3 gap-2">
+                {additionalImages.slice(1).map((img: string, idx: number) => (
+                  <div
+                    key={idx}
+                    className="relative aspect-square overflow-hidden rounded-lg bg-stone-100"
+                  >
+                    <Image
+                      src={img}
+                      alt={`${product.name} - obrázek ${idx + 2}`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 33vw, 16vw"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-          {additionalImages.length > 1 && (
-            <div className="grid grid-cols-3 gap-2">
-              {additionalImages.slice(1).map((img: string, idx: number) => (
-                <div
-                  key={idx}
-                  className="relative aspect-square overflow-hidden rounded-lg bg-stone-100"
+
+          <div className="flex flex-col">
+            <h1 className="text-2xl font-bold text-stone-900 sm:text-3xl">{product.name}</h1>
+
+            {hasVariants ? (
+              <p className="mt-4 text-xl font-bold text-amber-700 sm:text-2xl">
+                {formatPrice(product.variants[0].price)} –{" "}
+                {formatPrice(product.variants[product.variants.length - 1].price)}
+              </p>
+            ) : (
+              <p className="mt-4 text-xl font-bold text-amber-700 sm:text-2xl">
+                {formatPrice(product.variants[0].price)}
+              </p>
+            )}
+
+            <div className="mt-6 flex-1">
+              <h2 className="mb-2 font-semibold text-stone-900">Popis produktu</h2>
+              <p className="text-stone-700">{product.description}</p>
+            </div>
+
+            <div className="mt-6 space-y-4 rounded-lg border border-amber-100 bg-amber-50/50 p-4">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-stone-600">Dostupnost:</span>
+                <span
+                  className={`font-semibold ${
+                    inStock ? "text-green-700" : "text-red-700"
+                  }`}
                 >
-                  <Image
-                    src={img}
-                    alt={`${product.name} - obrázek ${idx + 2}`}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 33vw, 16vw"
-                  />
-                </div>
-              ))}
+                  {inStock ? "Skladem" : "Vyprodáno"}
+                </span>
+              </div>
             </div>
-          )}
-        </div>
 
-        <div className="flex flex-col">
-          <h1 className="text-2xl font-bold text-stone-900 sm:text-3xl">{product.name}</h1>
-
-          {hasVariants ? (
-            <p className="mt-4 text-xl font-bold text-amber-700 sm:text-2xl">
-              {formatPrice(product.variants[0].price)} –{" "}
-              {formatPrice(product.variants[product.variants.length - 1].price)}
-            </p>
-          ) : (
-            <p className="mt-4 text-xl font-bold text-amber-700 sm:text-2xl">
-              {formatPrice(product.variants[0].price)}
-            </p>
-          )}
-
-          <div className="mt-6 flex-1">
-            <h2 className="mb-2 font-semibold text-stone-900">Popis produktu</h2>
-            <p className="text-stone-700">{product.description}</p>
+            <VariantSelector product={product} />
           </div>
-
-          <div className="mt-6 space-y-4 rounded-lg border border-amber-100 bg-amber-50/50 p-4">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-stone-600">Dostupnost:</span>
-              <span
-                className={`font-semibold ${
-                  inStock ? "text-green-700" : "text-red-700"
-                }`}
-              >
-                {inStock ? "Skladem" : "Vyprodáno"}
-              </span>
-            </div>
-          </div>
-
-          <VariantSelector product={product} />
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }

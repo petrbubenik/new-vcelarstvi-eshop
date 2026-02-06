@@ -4,7 +4,13 @@ import { ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Doprava a platba | Včelařské potřeby Bubeník",
-  description: "Informace o dopravě a platbě při nákupu včelařských potřeb",
+  description: "Informace o dopravě a platbě při nákupu včelařských potřeb. PPL doprava po celé ČR, osobní odběr v Bludově. Platba bankovním převodem, dobírkou nebo v hotovosti.",
+  openGraph: {
+    title: "Doprava a platba | Včelařské potřeby Bubeník",
+    description: "Informace o dopravě a platbě při nákupu včelařských potřeb.",
+    url: "https://shop.vcelarstvi-bubenik.cz/doprava-a-platba",
+    type: "website",
+  },
 };
 
 export default function DopravaAPlatbaPage() {

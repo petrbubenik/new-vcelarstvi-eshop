@@ -3,19 +3,19 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Product {
-  id          String          @id @default(cuid())
+  id          String          @id @default(uuid()) @db.Uuid
   slug        String          @unique
   name        String
   description String
   image       String
-  images      String?         // Additional images as JSON array
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  images      String?         @db.Text
+  createdAt   DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime        @updatedAt @db.Timestamptz(6)
   variants    ProductVariant[]
   orderItems  OrderItem[]
 
@@ -23,10 +23,10 @@ model Product {
 }
 
 model ProductVariant {
-  id              String      @id @default(cuid())
+  id              String      @id @default(uuid()) @db.Uuid
   productId       String
-  size            String?     // e.g., "39×39 cm"
-  materialType    String?     // e.g., "mosazná", "pozinkovaná"
+  size            String?     @db.VarChar(50)
+  materialType    String?     @db.VarChar(50)
   price           Int
   stock           Int
   product         Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -36,42 +36,42 @@ model ProductVariant {
 }
 
 model Order {
-  id                    String   @id
-  customerName          String
-  email                 String
-  phone                 String
-  deliveryMethod        String   @default("PPL") // PPL or SELF_COLLECTION
-  address               String?  // Billing address - only for PPL
-  city                  String?  // Billing city - only for PPL
-  postalCode            String?  // Billing postal code - only for PPL
-  isCompany             Boolean  @default(false) // Whether customer is a company
-  companyName           String?  // Company name
-  companyIc             String?  // IČ (Identification number)
-  companyDic            String?  // DIČ (VAT number)
-  differentDeliveryAddr Boolean  @default(false) // Whether delivery address is different
-  deliveryName          String?  // Delivery address - name
-  deliveryAddress       String?  // Delivery address - street
-  deliveryCity          String?  // Delivery address - city
-  deliveryPostalCode    String?  // Delivery address - postal code
-  paymentMethod         String   // BANK_TRANSFER, CASH_ON_DELIVERY, or CASH_IN_PERSON
-  deliveryCost          Int      @default(0) // Delivery cost in cents
-  codFee                Int      @default(0) // Cash on delivery fee in cents
-  status                String   @default("PENDING") // PENDING, PROCESSING, COMPLETED, CANCELLED
+  id                    String   @id @default(uuid()) @db.Uuid
+  customerName          String   @db.VarChar(200)
+  email                 String   @db.VarChar(255)
+  phone                 String   @db.VarChar(50)
+  deliveryMethod        String   @default("PPL") @db.VarChar(50)
+  address               String?  @db.VarChar(255)
+  city                  String?  @db.VarChar(100)
+  postalCode            String?  @db.VarChar(10)
+  isCompany             Boolean  @default(false)
+  companyName           String?  @db.VarChar(200)
+  companyIc             String?  @db.VarChar(20)
+  companyDic            String?  @db.VarChar(20)
+  differentDeliveryAddr Boolean  @default(false)
+  deliveryName          String?  @db.VarChar(200)
+  deliveryAddress       String?  @db.VarChar(255)
+  deliveryCity          String?  @db.VarChar(100)
+  deliveryPostalCode    String?  @db.VarChar(10)
+  paymentMethod         String   @db.VarChar(50)
+  deliveryCost          Int      @default(0)
+  codFee                Int      @default(0)
+  status                String   @default("PENDING") @db.VarChar(50)
   total                 Int
-  createdAt             DateTime @default(now())
+  createdAt             DateTime @default(now()) @db.Timestamptz(6)
   items                 OrderItem[]
 
   @@index([createdAt])
 }
 
 model OrderItem {
-  id              String      @id @default(cuid())
+  id              String      @id @default(uuid()) @db.Uuid
   orderId         String
   productId       String
-  variantId       String?
+  variantId       String?    @db.Uuid
   quantity        Int
   priceAtPurchase Int
-  size            String?     // Store selected size at time of order
+  size            String?     @db.VarChar(50)
   order           Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product         Product     @relation(fields: [productId], references: [id])
   variant         ProductVariant? @relation(fields: [variantId], references: [id])
