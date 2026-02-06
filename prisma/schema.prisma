@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Product {
-  id          String          @id @default(uuid()) @db.Uuid
+  id          String          @id @default(cuid())
   slug        String          @unique
   name        String
   description String
@@ -23,7 +23,7 @@ model Product {
 }
 
 model ProductVariant {
-  id              String      @id @default(uuid()) @db.Uuid
+  id              String      @id @default(cuid())
   productId       String
   size            String?     @db.VarChar(50)
   materialType    String?     @db.VarChar(50)
@@ -36,7 +36,7 @@ model ProductVariant {
 }
 
 model Order {
-  id                    String   @id @default(uuid()) @db.Uuid
+  id                    String   @id @default(cuid())
   customerName          String   @db.VarChar(200)
   email                 String   @db.VarChar(255)
   phone                 String   @db.VarChar(50)
@@ -65,10 +65,10 @@ model Order {
 }
 
 model OrderItem {
-  id              String      @id @default(uuid()) @db.Uuid
+  id              String      @id @default(cuid())
   orderId         String
   productId       String
-  variantId       String?    @db.Uuid
+  variantId       String?
   quantity        Int
   priceAtPurchase Int
   size            String?     @db.VarChar(50)
