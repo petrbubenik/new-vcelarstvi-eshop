@@ -113,7 +113,7 @@ export function OrderConfirmationEmail({
   const bankAccount = "1209442007/2700";
 
   // Logo URL - use absolute URL
-  const logoUrl = "https://shop.vcelarstvi-bubenik.cz/images/logo.png";
+  const logoUrl = "https://vcelarstvi-bubenik.cz/images/logo.png";
 
   return (
     <Html>
@@ -184,7 +184,7 @@ export function OrderConfirmationEmail({
                 <tr key={index}>
                   <td style={itemNameCell} width="50%">
                     <Link
-                      href={`${process.env.NEXT_PUBLIC_SITE_URL || "https://shop.vcelarstvi-bubenik.cz"}/produkt/${item.slug}`}
+                      href={`${process.env.NEXT_PUBLIC_SITE_URL || "https://vcelarstvi-bubenik.cz"}/produkt/${item.slug}`}
                       style={linkStyle}
                     >
                       {item.name}

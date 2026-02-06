@@ -109,7 +109,7 @@ export default async function ProductPage({
       availability: inStock
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
-      url: `https://shop.vcelarstvi-bubenik.cz/produkt/${product.slug}`,
+      url: `https://vcelarstvi-bubenik.cz/produkt/${product.slug}`,
     },
   };
 

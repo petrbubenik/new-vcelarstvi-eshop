@@ -2,4 +2,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://shop.vcelarstvi-bubenik.cz/sitemap.xml
+Sitemap: https://vcelarstvi-bubenik.cz/sitemap.xml

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Doprava a platba | Včelařské potřeby Bubeník",
     description: "Informace o dopravě a platbě při nákupu včelařských potřeb.",
-    url: "https://shop.vcelarstvi-bubenik.cz/doprava-a-platba",
+    url: "https://vcelarstvi-bubenik.cz/doprava-a-platba",
     type: "website",
   },
 };

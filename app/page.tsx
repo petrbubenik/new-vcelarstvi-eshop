@@ -29,7 +29,7 @@ export default async function HomePage() {
     "@type": "LocalBusiness",
     name: "Včelařské potřeby Bubeník",
     description: "Kvalitní včelařské potřeby přímo od českého výrobce",
-    url: "https://shop.vcelarstvi-bubenik.cz",
+    url: "https://vcelarstvi-bubenik.cz",
     telephone: "+420 777 553 319",
     email: "obchod@vcelarstvi-bubenik.cz",
     address: {
@@ -68,7 +68,7 @@ export default async function HomePage() {
           availability: product.variants.some((v) => v.stock > 0)
             ? "https://schema.org/InStock"
             : "https://schema.org/OutOfStock",
-          url: `https://shop.vcelarstvi-bubenik.cz/produkt/${product.slug}`,
+          url: `https://vcelarstvi-bubenik.cz/produkt/${product.slug}`,
         },
       },
     })),

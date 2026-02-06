@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Obchodní podmínky | Včelařské potřeby Bubeník",
     description: "Obchodní podmínky pro nákup včelařských potřeb.",
-    url: "https://shop.vcelarstvi-bubenik.cz/obchodni-podminky",
+    url: "https://vcelarstvi-bubenik.cz/obchodni-podminky",
     type: "website",
   },
 };
