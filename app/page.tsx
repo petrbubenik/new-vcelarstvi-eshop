@@ -2,6 +2,9 @@ import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/product-card";
 import { Metadata } from "next";
 
+// Force dynamic rendering - don't cache this page
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Včelařské potřeby Bubeník - eshop | Kvalitní česká výroba",
   description:

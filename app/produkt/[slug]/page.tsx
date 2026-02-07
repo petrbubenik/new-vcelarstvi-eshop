@@ -6,6 +6,9 @@ import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { VariantSelector } from "./variant-selector";
 
+// Force dynamic rendering - don't cache product pages
+export const dynamic = 'force-dynamic';
+
 async function getProduct(slug: string) {
   const product = await prisma.product.findUnique({
     where: { slug },
