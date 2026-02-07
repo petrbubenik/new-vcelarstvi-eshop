@@ -28,19 +28,30 @@ async function getPdfAttachment(filename: string) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if RESEND_API_KEY is set
+    if (!process.env.RESEND_API_KEY) {
+      console.error("RESEND_API_KEY is not set");
+      return NextResponse.json(
+        { error: "RESEND_API_KEY is not configured" },
+        { status: 500 }
+      );
+    }
+
     const body = await request.json();
 
     const { type, orderId } = body;
 
     if (type === "notification") {
       // Send notification to seller about new order
-      await resend.emails.send({
+      const result = await resend.emails.send({
         from: "Včelařské potřeby Bubeník <obchod@vcelarstvi-bubenik.cz>",
         to: ["obchod@vcelarstvi-bubenik.cz"],
         subject: `Nová objednávka od ${body.data.customerName}`,
         replyTo: body.data.customerEmail,
         html: await render(OrderNotificationEmail(body.data)),
       });
+
+      console.log("Notification email sent:", result);
 
       return NextResponse.json({ success: true });
     }
@@ -57,6 +68,8 @@ export async function POST(request: NextRequest) {
         vopAttachment,
       ].filter((a): a is { filename: string; content: string } => a !== null);
 
+      console.log("Attachments loaded:", attachments.length);
+
       // Render the email HTML once
       const emailHtml = await render(OrderConfirmationEmail({
         ...body.data,
@@ -64,7 +77,7 @@ export async function POST(request: NextRequest) {
       }));
 
       // Send confirmation to customer
-      await resend.emails.send({
+      const customerResult = await resend.emails.send({
         from: "Včelařské potřeby Bubeník <obchod@vcelarstvi-bubenik.cz>",
         to: [body.data.customerEmail],
         subject: `Potvrzení objednávky #${orderId.slice(0, 8).toUpperCase()}`,
@@ -73,8 +86,10 @@ export async function POST(request: NextRequest) {
         attachments: attachments.length > 0 ? attachments : undefined,
       });
 
+      console.log("Customer confirmation sent:", customerResult);
+
       // Send copy to seller
-      await resend.emails.send({
+      const sellerResult = await resend.emails.send({
         from: "Včelařské potřeby Bubeník <obchod@vcelarstvi-bubenik.cz>",
         to: ["obchod@vcelarstvi-bubenik.cz"],
         subject: `KOPIE: Potvrzení objednávky #${orderId.slice(0, 8).toUpperCase()}`,
@@ -82,6 +97,8 @@ export async function POST(request: NextRequest) {
         html: emailHtml,
         attachments: attachments.length > 0 ? attachments : undefined,
       });
+
+      console.log("Seller confirmation sent:", sellerResult);
 
       return NextResponse.json({ success: true });
     }
