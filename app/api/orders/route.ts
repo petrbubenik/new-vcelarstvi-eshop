@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { Resend } from "resend";
+import { render } from "@react-email/components";
+import { OrderNotificationEmail } from "@/app/emails/order-notification";
+import { OrderConfirmationEmail } from "@/app/emails/order-confirmation";
+import { readFile } from "fs/promises";
+import { join } from "path";
 
 // Validation schema for order submission
 const orderItemSchema = z.object({
@@ -75,6 +81,101 @@ async function generateOrderId(prisma: any): Promise<string> {
 
   // Format as YYDDMMNN (e.g., 25020101)
   return `${prefix}${nextSequence.toString().padStart(2, '0')}`;
+}
+
+// Helper function to read and convert PDF to base64 for attachment
+async function getPdfAttachment(filename: string) {
+  try {
+    const filePath = join(process.cwd(), "public", "documents", filename);
+    const fileContent = await readFile(filePath);
+    return {
+      filename,
+      content: fileContent.toString("base64"),
+    };
+  } catch (error) {
+    console.error(`Error reading PDF file ${filename}:`, error);
+    return null;
+  }
+}
+
+// Helper function to send notification email
+async function sendNotificationEmail(data: any) {
+  if (!process.env.RESEND_API_KEY) {
+    console.error("RESEND_API_KEY is not set");
+    return;
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  try {
+    const result = await resend.emails.send({
+      from: "Včelařské potřeby Bubeník <obchod@vcelarstvi-bubenik.cz>",
+      to: ["obchod@vcelarstvi-bubenik.cz"],
+      subject: `Nová objednávka od ${data.customerName}`,
+      replyTo: data.customerEmail,
+      html: await render(OrderNotificationEmail(data)),
+    });
+    console.log("Notification email sent:", result);
+  } catch (error) {
+    console.error("Failed to send notification email:", error);
+  }
+}
+
+// Helper function to send confirmation emails
+async function sendConfirmationEmails(orderId: string, data: any) {
+  if (!process.env.RESEND_API_KEY) {
+    console.error("RESEND_API_KEY is not set");
+    return;
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  try {
+    // Get PDF attachments
+    const [zoouAttachment, vopAttachment] = await Promise.all([
+      getPdfAttachment("zoou_01022026.pdf"),
+      getPdfAttachment("vop_01022026.pdf"),
+    ]);
+
+    const attachments = [
+      zoouAttachment,
+      vopAttachment,
+    ].filter((a): a is { filename: string; content: string } => a !== null);
+
+    console.log("Attachments loaded:", attachments.length);
+
+    // Render the email HTML once
+    const emailHtml = await render(OrderConfirmationEmail({
+      ...data,
+      orderId,
+    }));
+
+    // Send confirmation to customer
+    const customerResult = await resend.emails.send({
+      from: "Včelařské potřeby Bubeník <obchod@vcelarstvi-bubenik.cz>",
+      to: [data.customerEmail],
+      subject: `Potvrzení objednávky #${orderId.slice(0, 8).toUpperCase()}`,
+      replyTo: "obchod@vcelarstvi-bubenik.cz",
+      html: emailHtml,
+      attachments: attachments.length > 0 ? attachments : undefined,
+    });
+
+    console.log("Customer confirmation sent:", customerResult);
+
+    // Send copy to seller
+    const sellerResult = await resend.emails.send({
+      from: "Včelařské potřeby Bubeník <obchod@vcelarstvi-bubenik.cz>",
+      to: ["obchod@vcelarstvi-bubenik.cz"],
+      subject: `KOPIE: Potvrzení objednávky #${orderId.slice(0, 8).toUpperCase()}`,
+      replyTo: data.customerEmail,
+      html: emailHtml,
+      attachments: attachments.length > 0 ? attachments : undefined,
+    });
+
+    console.log("Seller confirmation sent:", sellerResult);
+  } catch (error) {
+    console.error("Failed to send confirmation emails:", error);
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -261,73 +362,59 @@ export async function POST(request: NextRequest) {
     });
 
     // Send emails (fire and forget - don't block the response)
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-    fetch(`${baseUrl}/api/send-email`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type: "notification",
-        data: {
-          customerName: validatedData.customerName,
-          customerEmail: validatedData.email,
-          customerPhone: validatedData.phone,
-          deliveryMethod: validatedData.deliveryMethod,
-          // Use the actual delivery address (different address if selected, otherwise billing address)
-          address: validatedData.differentDeliveryAddr ? validatedData.deliveryAddress || "" : validatedData.address || "",
-          city: validatedData.differentDeliveryAddr ? validatedData.deliveryCity || "" : validatedData.city || "",
-          postalCode: validatedData.differentDeliveryAddr ? validatedData.deliveryPostalCode || "" : validatedData.postalCode || "",
-          paymentMethod: validatedData.paymentMethod,
-          items: emailItems,
-          deliveryCost: validatedData.deliveryCost || 0,
-          codFee: validatedData.codFee || 0,
-          total: validatedData.total,
-          // Add company info if applicable
-          ...(validatedData.isCompany && {
-            companyName: validatedData.companyName,
-            companyIc: validatedData.companyIc,
-            companyDic: validatedData.companyDic,
-          }),
-        },
+    // Send notification email
+    sendNotificationEmail({
+      customerName: validatedData.customerName,
+      customerEmail: validatedData.email,
+      customerPhone: validatedData.phone,
+      deliveryMethod: validatedData.deliveryMethod,
+      // Use the actual delivery address (different address if selected, otherwise billing address)
+      address: validatedData.differentDeliveryAddr ? validatedData.deliveryAddress || "" : validatedData.address || "",
+      city: validatedData.differentDeliveryAddr ? validatedData.deliveryCity || "" : validatedData.city || "",
+      postalCode: validatedData.differentDeliveryAddr ? validatedData.deliveryPostalCode || "" : validatedData.postalCode || "",
+      paymentMethod: validatedData.paymentMethod,
+      items: emailItems,
+      deliveryCost: validatedData.deliveryCost || 0,
+      codFee: validatedData.codFee || 0,
+      total: validatedData.total,
+      // Add company info if applicable
+      ...(validatedData.isCompany && {
+        companyName: validatedData.companyName,
+        companyIc: validatedData.companyIc,
+        companyDic: validatedData.companyDic,
       }),
-    }).catch((err) => console.error("Failed to send notification email:", err));
+    });
 
-    fetch(`${baseUrl}/api/send-email`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type: "confirmation",
-        orderId: result.id,
-        data: {
-          customerName: validatedData.customerName,
-          customerEmail: validatedData.email,
-          customerPhone: validatedData.phone,
-          deliveryMethod: validatedData.deliveryMethod,
-          // Billing address (fakturační adresa)
-          billingAddress: validatedData.address || "",
-          billingCity: validatedData.city || "",
-          billingPostalCode: validatedData.postalCode || "",
-          // Delivery address (if different)
-          deliveryAddress: validatedData.differentDeliveryAddr ? (validatedData.deliveryAddress || "") : (validatedData.address || ""),
-          deliveryCity: validatedData.differentDeliveryAddr ? (validatedData.deliveryCity || "") : (validatedData.city || ""),
-          deliveryPostalCode: validatedData.differentDeliveryAddr ? (validatedData.deliveryPostalCode || "") : (validatedData.postalCode || ""),
-          deliveryName: validatedData.differentDeliveryAddr ? (validatedData.deliveryName || "") : validatedData.customerName,
-          // Different delivery address flag
-          differentDeliveryAddr: validatedData.differentDeliveryAddr || false,
-          paymentMethod: validatedData.paymentMethod,
-          items: emailItems,
-          deliveryCost: validatedData.deliveryCost || 0,
-          codFee: validatedData.codFee || 0,
-          total: validatedData.total,
-          notes: validatedData.notes || "",
-          // Add company info if applicable
-          ...(validatedData.isCompany && {
-            companyName: validatedData.companyName,
-            companyIc: validatedData.companyIc,
-            companyDic: validatedData.companyDic,
-          }),
-        },
+    // Send confirmation emails
+    sendConfirmationEmails(result.id, {
+      customerName: validatedData.customerName,
+      customerEmail: validatedData.email,
+      customerPhone: validatedData.phone,
+      deliveryMethod: validatedData.deliveryMethod,
+      // Billing address (fakturační adresa)
+      billingAddress: validatedData.address || "",
+      billingCity: validatedData.city || "",
+      billingPostalCode: validatedData.postalCode || "",
+      // Delivery address (if different)
+      deliveryAddress: validatedData.differentDeliveryAddr ? (validatedData.deliveryAddress || "") : (validatedData.address || ""),
+      deliveryCity: validatedData.differentDeliveryAddr ? (validatedData.deliveryCity || "") : (validatedData.city || ""),
+      deliveryPostalCode: validatedData.differentDeliveryAddr ? (validatedData.deliveryPostalCode || "") : (validatedData.postalCode || ""),
+      deliveryName: validatedData.differentDeliveryAddr ? (validatedData.deliveryName || "") : validatedData.customerName,
+      // Different delivery address flag
+      differentDeliveryAddr: validatedData.differentDeliveryAddr || false,
+      paymentMethod: validatedData.paymentMethod,
+      items: emailItems,
+      deliveryCost: validatedData.deliveryCost || 0,
+      codFee: validatedData.codFee || 0,
+      total: validatedData.total,
+      notes: validatedData.notes || "",
+      // Add company info if applicable
+      ...(validatedData.isCompany && {
+        companyName: validatedData.companyName,
+        companyIc: validatedData.companyIc,
+        companyDic: validatedData.companyDic,
       }),
-    }).catch((err) => console.error("Failed to send confirmation email:", err));
+    });
 
     return NextResponse.json(
       {
