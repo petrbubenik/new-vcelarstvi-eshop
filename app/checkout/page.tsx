@@ -153,7 +153,7 @@ export default function CheckoutPage() {
     return new Intl.NumberFormat("cs-CZ", {
       style: "currency",
       currency: "CZK",
-    }).format(price / 100);
+    }).format(price);
   };
 
   const form = useForm<CheckoutFormValues>({
