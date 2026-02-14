@@ -194,8 +194,8 @@ export default function CheckoutPage() {
 
   // Calculate delivery cost based on delivery method and subtotal
   const subtotal = getTotalPrice();
-  const deliveryCost = selectedDeliveryMethod === "SELF_COLLECTION" ? 0 : (subtotal >= 250000 ? 0 : 12500);
-  const codFee = selectedPaymentMethod === "CASH_ON_DELIVERY" ? 10000 : 0;
+  const deliveryCost = selectedDeliveryMethod === "SELF_COLLECTION" ? 0 : (subtotal >= 2500 ? 0 : 125);
+  const codFee = selectedPaymentMethod === "CASH_ON_DELIVERY" ? 100 : 0;
   const totalPrice = subtotal + deliveryCost + codFee;
 
   // Initialize quantity inputs when items change
@@ -234,8 +234,8 @@ export default function CheckoutPage() {
 
     try {
       const currentSubtotal = getTotalPrice();
-      const currentDeliveryCost = data.deliveryMethod === "SELF_COLLECTION" ? 0 : (currentSubtotal >= 250000 ? 0 : 12500);
-      const currentCodFee = data.paymentMethod === "CASH_ON_DELIVERY" ? 10000 : 0;
+      const currentDeliveryCost = data.deliveryMethod === "SELF_COLLECTION" ? 0 : (currentSubtotal >= 2500 ? 0 : 125);
+      const currentCodFee = data.paymentMethod === "CASH_ON_DELIVERY" ? 100 : 0;
       const currentTotal = currentSubtotal + currentDeliveryCost + currentCodFee;
 
       // Determine which address to use for delivery label (billing or delivery address)
