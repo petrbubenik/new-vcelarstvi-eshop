@@ -101,10 +101,10 @@ export default async function HomePage() {
             navrhuji tak, aby vám šetřily čas při práci s medem. Poctivá česká
             výroba bez prostředníků a za férové ceny.
           </p>
-          <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+          <h2 className="text-balance text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
             Proč přejít na kovovou mřížku?
           </h2>
-          <h3 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+          <h3 className="text-balance text-xl font-bold tracking-tight sm:text-2xl lg:text-3xl">
           Hlavní výhody mého řešení:
           </h3>
           <ul className="space-y-4 ml-6 list-disc marker:text-blue-500">
