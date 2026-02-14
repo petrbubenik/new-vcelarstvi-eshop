@@ -122,6 +122,7 @@ export default async function HomePage() {
           </div>
 
         </section>
+            <section>
 
           <h3 className="mb-6 text-2xl font-bold text-stone-900">
 
@@ -156,6 +157,7 @@ export default async function HomePage() {
             </li>
 
           </ul>
+          </section>
           </div>
         </section>
 
