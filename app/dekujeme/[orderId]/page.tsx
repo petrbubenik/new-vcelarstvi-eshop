@@ -52,7 +52,7 @@ export default async function ThankYouPage({
     return new Intl.NumberFormat("cs-CZ", {
       style: "currency",
       currency: "CZK",
-    }).format(price / 100);
+    }).format(price);
   };
 
   const formatPostalCode = (postalCode: string) => {
