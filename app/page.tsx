@@ -87,84 +87,66 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productListData) }}
       />
-      <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
-        <section className="space-y-4">
-          <p className="text-sm font-semibold uppercase tracking-wide text-amber-700">
-            Včelařské potřeby &middot; Bubeník
-          </p>
-          <h1 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-            Poctivé včelařské vybavení přímo od výrobce
-          </h1>
-<p className="text-base text-stone-700 sm:text-lg">
+<main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+  {/* Increased overall vertical spacing for the main section */}
+  <section className="space-y-12">
 
-            Máte atypické rozměry nebo specifické nároky na materiál? Jako
+    {/* Intro header and paragraph grouped together */}
+    <div className="space-y-4">
+      <p className="text-sm font-semibold uppercase tracking-wide text-amber-700">
+        Včelařské potřeby &middot; Bubeník
+      </p>
+      <h1 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+        Poctivé včelařské vybavení přímo od výrobce
+      </h1>
+      <p className="text-base text-stone-700 sm:text-lg">
+        Máte atypické rozměry nebo specifické nároky na materiál? Jako
+        výrobce se vám přizpůsobím. Mé mateří mřížky
+        navrhuji tak, aby vám šetřily čas při práci s medem. Poctivá česká
+        výroba bez prostředníků a za férové ceny.
+      </p>
+    </div>
 
-            výrobce se vám přizpůsobím. Mé mateří mřížky
+    {/* The two-column grid */}
+    <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[4fr_6fr] lg:gap-8">
 
-            navrhuji tak, aby vám šetřily čas při práci s medem. Poctivá česká
+      {/* Left Column: Product(s) */}
+      {/* REMOVED "mt-12" from this section tag so it aligns perfectly to the top */}
+      <section>
+        {/* <h2 className="mb-6 text-2xl font-bold text-stone-900">Moje produkty</h2> */}
 
-            výroba bez prostředníků a za férové ceny.
+        {/* Adjusted inner grid to max out at 2 columns for better fit */}
+        <div className="grid gap-6 sm:grid-cols-2">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      </section>
 
-          </p>
-          <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[4fr_6fr] lg:gap-8">
-                  <section className="mt-12">
-
-          {/* <h2 className="mb-6 text-2xl font-bold text-stone-900">Moje produkty</h2> */}
-
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-
-            {products.map((product) => (
-
-              <ProductCard key={product.id} product={product} />
-
-            ))}
-
-          </div>
-
-        </section>
-            <section>
-
-          <h3 className="mb-6 text-2xl font-bold text-stone-900">
-
+      {/* Right Column: Benefits List */}
+      <section>
+        <h3 className="mb-6 text-2xl font-bold text-stone-900">
           Hlavní výhody mého řešení:
+        </h3>
+        <ul className="ml-6 space-y-2 text-base list-disc text-stone-700 marker:text-[#87544EFF] sm:text-lg">
+          <li>
+            <strong>Maximální průchodnost:</strong> Včely mřížkou procházejí přirozeně a bez odporu. Neztrácejí pylové rousky a rychleji nosí sladinu do medníku.
+          </li>
+          <li>
+            <strong>Šetrnost k včelám:</strong> Dráty jsou dokonale hladké a oblé. Nehrozí poškození křídel ani odírání chloupků.
+          </li>
+          <li>
+            <strong>Stoprocentní spolehlivost:</strong> Přesné rozestupy drátů (v toleranci desetin mm) nepustí matku nahoru. Už žádné zakladení plástů v medníku.
+          </li>
+          <li>
+            <strong>Snadná údržba:</strong> Mřížku můžete vyvařit, opálit plamenem nebo oškrábat rozpěrákem. Nerez vydrží vše.
+          </li>
+        </ul>
+      </section>
 
-          </h3>
-
-          <ul className="space-y-2 ml-6 list-disc marker:text-[#87544EFF] text-base text-stone-700 sm:text-lg">
-
-            <li>
-
-              <strong>Maximální průchodnost:</strong> Včely mřížkou procházejí přirozeně a bez odporu. Neztrácejí pylové rousky a rychleji nosí sladinu do medníku.
-
-            </li>
-
-            <li>
-
-              <strong>Šetrnost k včelám:</strong> Dráty jsou dokonale hladké a oblé. Nehrozí poškození křídel ani odírání chloupků.
-
-            </li>
-
-            <li>
-
-              <strong>Stoprocentní spolehlivost:</strong> Přesné rozestupy drátů (v toleranci desetin mm) nepustí matku nahoru. Už žádné zakladení plástů v medníku.
-
-            </li>
-
-            <li>
-
-              <strong>Snadná údržba:</strong> Mřížku můžete vyvařit, opálit plamenem nebo oškrábat rozpěrákem. Nerez vydrží vše.
-
-            </li>
-
-          </ul>
-          </section>
-          </div>
-        </section>
-
-
-
-
-      </main>
+    </div>
+  </section>
+</main>
     </>
   );
 }
