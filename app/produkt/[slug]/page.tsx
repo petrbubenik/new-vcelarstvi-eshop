@@ -39,7 +39,7 @@ export async function generateMetadata({
     return new Intl.NumberFormat("cs-CZ", {
       style: "currency",
       currency: "CZK",
-    }).format(price / 100);
+    }).format(price);
   };
 
   const lowestPrice = product.variants[0]?.price;
@@ -82,7 +82,7 @@ export default async function ProductPage({
     return new Intl.NumberFormat("cs-CZ", {
       style: "currency",
       currency: "CZK",
-    }).format(price / 100);
+    }).format(price);
   };
 
   const hasVariants = product.variants.length > 1;
@@ -103,10 +103,10 @@ export default async function ProductPage({
     offers: {
       "@type": "AggregateOffer",
       lowPrice: product.variants[0]?.price
-        ? (product.variants[0].price / 100)
+        ? (product.variants[0].price)
         : 0,
       highPrice: product.variants[product.variants.length - 1]?.price
-        ? (product.variants[product.variants.length - 1].price / 100)
+        ? (product.variants[product.variants.length - 1].price)
         : 0,
       priceCurrency: "CZK",
       availability: inStock
