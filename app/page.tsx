@@ -65,7 +65,7 @@ export default async function HomePage() {
         offers: {
           "@type": "Offer",
           price: product.variants[0]?.price
-            ? (product.variants[0].price / 100).toFixed(2)
+            ? (product.variants[0].price).toFixed(2)
             : "0",
           priceCurrency: "CZK",
           availability: product.variants.some((v) => v.stock > 0)
