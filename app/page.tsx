@@ -107,7 +107,7 @@ export default async function HomePage() {
     </div>
 
     {/* The two-column grid */}
-    <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[4fr_6fr] lg:gap-8">
+    <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[5fr_5fr] lg:gap-8">
 
       {/* Left Column: Single Product */}
       <section>
