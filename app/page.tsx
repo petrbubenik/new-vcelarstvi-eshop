@@ -112,7 +112,7 @@ export default async function HomePage() {
       {/* Left Column: Single Product */}
       <section>
         {/* max-w-xs prevents the single card from stretching too wide */}
-        <div className="max-w-xs">
+        <div>
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
