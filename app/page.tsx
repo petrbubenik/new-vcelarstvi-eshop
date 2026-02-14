@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: "Včelařské potřeby Bubeník - eshop | Kvalitní česká výroba",
   description:
-    "Kvalitní včelařské potřeby přímo od českého výrobce. Mateří mřížky, odvíčkovací talíře, nádoby pod medomet a další vybavení pro včelaře. Poctivá česká výroba bez prostředníků.",
+    "Kvalitní včelařské potřeby přímo od českého výrobce. Mateří mřížky a další vybavení pro včelaře. Poctivá česká výroba bez prostředníků.",
 };
 
 async function getProducts() {
@@ -97,16 +97,34 @@ export default async function HomePage() {
           </h1>
           <p className="text-base text-stone-700 sm:text-lg">
             Máte atypické rozměry nebo specifické nároky na materiál? Jako
-            výrobce se vám přizpůsobím. Mé mateří mřížky a odvíčkovací talíře
+            výrobce se vám přizpůsobím. Mé mateří mřížky
             navrhuji tak, aby vám šetřily čas při práci s medem. Poctivá česká
             výroba bez prostředníků a za férové ceny.
           </p>
+          <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+            Proč přejít na kovovou mřížku?
+          </h2>
+          <h3 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+          Hlavní výhody mého řešení:
+          </h3>
+          <ul className="space-y-4 ml-6 list-disc marker:text-blue-500">
+            <li className="text-lg leading-[1.7] pl-2">
+              <strong>Maximální průchodnost:</strong> Včely mřížkou procházejí přirozeně a bez odporu. Neztrácejí pylové rousky a rychleji nosí sladinu do medníku.
+            </li>
+            <li className="text-lg leading-[1.7] pl-2">
+              <strong>Šetrnost k včelám:</strong> Dráty jsou dokonale hladké a oblé. Nehrozí poškození křídel ani odírání chloupků.
+            </li>
+            <li className="text-lg leading-[1.7] pl-2">
+              <strong>Stoprocentní spolehlivost:</strong> Přesné rozestupy drátů (v toleranci desetin mm) nepustí matku nahoru. Už žádné zakladení plástů v medníku.
+            </li>
+            <li className="text-lg leading-[1.7] pl-2">
+              <strong>Snadná údržba:</strong> Mřížku můžete vyvařit, opálit plamenem nebo oškrábat rozpěrákem. Nerez vydrží vše.
+            </li>
+          </ul>
         </section>
 
         <section className="mt-12">
           <h2 className="mb-6 text-2xl font-bold text-stone-900">Moje produkty</h2>
-          <h3 className="mb-4 text-lg font-semibold text-stone-900">Proč přejít na kovovou mřížku?</h3>
-          <p className="text-stone-700">Každý včelař to zná – plastová mřížka se časem prohne, včely ji zalepí voskem a propolisem a při čištění praská. Moje nerezové mřížky jsou investicí, kterou uděláte jednou a slouží vám navždy.</p>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
