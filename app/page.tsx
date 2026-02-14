@@ -107,6 +107,7 @@ export default async function HomePage() {
           <h3 className="text-balance text-xl font-bold tracking-tight sm:text-2xl lg:text-3xl">
           Hlavní výhody mého řešení:
           </h3>
+          <div className="text-base text-stone-700 sm:text-lg">
           <ul className="space-y-4 ml-6 list-disc marker:text-blue-500">
             <li className="text-lg leading-[1.7] pl-2">
               <strong>Maximální průchodnost:</strong> Včely mřížkou procházejí přirozeně a bez odporu. Neztrácejí pylové rousky a rychleji nosí sladinu do medníku.
@@ -121,6 +122,7 @@ export default async function HomePage() {
               <strong>Snadná údržba:</strong> Mřížku můžete vyvařit, opálit plamenem nebo oškrábat rozpěrákem. Nerez vydrží vše.
             </li>
           </ul>
+          </div>
         </section>
 
         <section className="mt-12">
