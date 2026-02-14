@@ -104,7 +104,7 @@ export default async function HomePage() {
           <h3 className="text-balance text-xl font-bold tracking-tight sm:text-2xl lg:text-3xl">
           Hlavní výhody mého řešení:
           </h3>
-          <ul className="space-y-2 ml-6 list-disc marker:text-blue-500" className="text-base text-stone-700 sm:text-lg">
+          <ul className="space-y-2 ml-6 list-disc marker:text-blue-500 text-base text-stone-700 sm:text-lg">
             <li>
               <strong>Maximální průchodnost:</strong> Včely mřížkou procházejí přirozeně a bez odporu. Neztrácejí pylové rousky a rychleji nosí sladinu do medníku.
             </li>
