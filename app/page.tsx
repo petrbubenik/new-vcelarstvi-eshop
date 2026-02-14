@@ -113,7 +113,7 @@ export default async function HomePage() {
 
           </h3>
 
-          <ul className="space-y-2 ml-6 list-disc marker:text-blue-500 text-base text-stone-700 sm:text-lg">
+          <ul className="space-y-2 ml-6 list-disc marker:text-[#87544EFF] text-base text-stone-700 sm:text-lg">
 
             <li>
 
@@ -147,7 +147,7 @@ export default async function HomePage() {
 
         <section className="mt-12">
 
-          <h2 className="mb-6 text-2xl font-bold text-stone-900">Moje produkty</h2>
+          {/* <h2 className="mb-6 text-2xl font-bold text-stone-900">Moje produkty</h2> */}
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
