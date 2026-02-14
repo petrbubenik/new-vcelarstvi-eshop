@@ -75,7 +75,7 @@ export function OrderConfirmationEmail({
       style: "currency",
       currency: "CZK",
       minimumFractionDigits: 0,
-    }).format(price / 100);
+    }).format(price);
   };
 
   const formatDate = (date: Date) => {
