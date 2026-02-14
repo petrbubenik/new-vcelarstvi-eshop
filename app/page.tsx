@@ -107,7 +107,7 @@ export default async function HomePage() {
 
           </p>
 
-          <h3 className="text-balance text-xl font-bold tracking-tight sm:text-2xl lg:text-3xl">
+          <h3 className="mb-6 text-2xl font-bold text-stone-900">
 
           Hlavní výhody mého řešení:
 
