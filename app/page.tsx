@@ -88,7 +88,6 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productListData) }}
       />
 <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
-  {/* Increased overall vertical spacing for the main section */}
   <section className="space-y-12">
 
     {/* Intro header and paragraph grouped together */}
@@ -110,13 +109,10 @@ export default async function HomePage() {
     {/* The two-column grid */}
     <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[4fr_6fr] lg:gap-8">
 
-      {/* Left Column: Product(s) */}
-      {/* REMOVED "mt-12" from this section tag so it aligns perfectly to the top */}
+      {/* Left Column: Single Product */}
       <section>
-        {/* <h2 className="mb-6 text-2xl font-bold text-stone-900">Moje produkty</h2> */}
-
-        {/* Adjusted inner grid to max out at 2 columns for better fit */}
-        <div className="grid gap-6 sm:grid-cols-2">
+        {/* max-w-xs prevents the single card from stretching too wide */}
+        <div className="max-w-xs">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
