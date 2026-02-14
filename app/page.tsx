@@ -88,6 +88,7 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productListData) }}
       />
       <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-8">
         <section className="space-y-4">
           <p className="text-sm font-semibold uppercase tracking-wide text-amber-700">
             Včelařské potřeby &middot; Bubeník
@@ -160,6 +161,7 @@ export default async function HomePage() {
           </div>
 
         </section>
+        </div>
       </main>
     </>
   );
