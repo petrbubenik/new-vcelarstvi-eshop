@@ -148,7 +148,7 @@ export default async function ProductPage({
                 {additionalImages.slice(1).map((img: string, idx: number) => (
                   <div
                     key={idx}
-                    className="relative aspect-square overflow-hidden rounded-lg bg-stone-100"
+                    className="relative aspect-[4/3] overflow-hidden rounded-lg bg-stone-100"
                   >
                     <Image
                       src={img}
