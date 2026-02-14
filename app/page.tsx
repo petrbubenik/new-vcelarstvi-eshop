@@ -105,6 +105,8 @@ export default async function HomePage() {
 
         <section className="mt-12">
           <h2 className="mb-6 text-2xl font-bold text-stone-900">Moje produkty</h2>
+          <h3 className="mb-4 text-lg font-semibold text-stone-900">Proč přejít na kovovou mřížku?</h3>
+          <p className="text-stone-700">Každá kovová mřížka je vyrobena s maximální péčí v datech a materiálu.</p>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
