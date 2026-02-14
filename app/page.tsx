@@ -106,7 +106,7 @@ export default async function HomePage() {
             výroba bez prostředníků a za férové ceny.
 
           </p>
-          <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-8">
+          <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[4fr_6fr] lg:gap-8">
                   <section className="mt-12">
 
           {/* <h2 className="mb-6 text-2xl font-bold text-stone-900">Moje produkty</h2> */}
