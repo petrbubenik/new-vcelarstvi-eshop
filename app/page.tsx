@@ -104,22 +104,20 @@ export default async function HomePage() {
           <h3 className="text-balance text-xl font-bold tracking-tight sm:text-2xl lg:text-3xl">
           Hlavní výhody mého řešení:
           </h3>
-          <div className="text-base text-stone-700 sm:text-lg">
-          <ul className="space-y-2 ml-6 list-disc marker:text-blue-500">
-            <li className="text-lg leading-[1.7] pl-2">
+          <ul className="space-y-2 ml-6 list-disc marker:text-blue-500" className="text-base text-stone-700 sm:text-lg">
+            <li>
               <strong>Maximální průchodnost:</strong> Včely mřížkou procházejí přirozeně a bez odporu. Neztrácejí pylové rousky a rychleji nosí sladinu do medníku.
             </li>
-            <li className="text-lg leading-[1.7] pl-2">
+            <li>
               <strong>Šetrnost k včelám:</strong> Dráty jsou dokonale hladké a oblé. Nehrozí poškození křídel ani odírání chloupků.
             </li>
-            <li className="text-lg leading-[1.7] pl-2">
+            <li>
               <strong>Stoprocentní spolehlivost:</strong> Přesné rozestupy drátů (v toleranci desetin mm) nepustí matku nahoru. Už žádné zakladení plástů v medníku.
             </li>
-            <li className="text-lg leading-[1.7] pl-2">
+            <li>
               <strong>Snadná údržba:</strong> Mřížku můžete vyvařit, opálit plamenem nebo oškrábat rozpěrákem. Nerez vydrží vše.
             </li>
           </ul>
-          </div>
         </section>
 
         <section className="mt-12">
