@@ -94,7 +94,7 @@ export function VariantSelector({ product }: VariantSelectorProps) {
       style: "currency",
       currency: "CZK",
       minimumFractionDigits: 0,
-    }).format(price / 100);
+    }).format(price);
   };
 
   const getQuantity = () => {
