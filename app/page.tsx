@@ -88,7 +88,6 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productListData) }}
       />
       <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
-      <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-8">
         <section className="space-y-4">
           <p className="text-sm font-semibold uppercase tracking-wide text-amber-700">
             Včelařské potřeby &middot; Bubeník
@@ -107,6 +106,22 @@ export default async function HomePage() {
             výroba bez prostředníků a za férové ceny.
 
           </p>
+
+                  <section className="mt-12">
+
+          {/* <h2 className="mb-6 text-2xl font-bold text-stone-900">Moje produkty</h2> */}
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+            {products.map((product) => (
+
+              <ProductCard key={product.id} product={product} />
+
+            ))}
+
+          </div>
+
+        </section>
 
           <h3 className="mb-6 text-2xl font-bold text-stone-900">
 
@@ -146,22 +161,7 @@ export default async function HomePage() {
 
 
 
-        <section className="mt-12">
 
-          {/* <h2 className="mb-6 text-2xl font-bold text-stone-900">Moje produkty</h2> */}
-
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-
-            {products.map((product) => (
-
-              <ProductCard key={product.id} product={product} />
-
-            ))}
-
-          </div>
-
-        </section>
-        </div>
       </main>
     </>
   );
