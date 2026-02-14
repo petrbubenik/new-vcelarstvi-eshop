@@ -18,12 +18,10 @@ export const metadata: Metadata = {
     template: "%s | Včelařské potřeby Bubeník"
   },
   description:
-    "Kvalitní včelařské potřeby přímo od českého výrobce za skvělé ceny. Mateří mřížky, odvíčkovací talíře, nádoby pod medomet a další vybavení pro včelaře. Poctivá česká výroba bez prostředníků.",
+    "Kvalitní včelařské potřeby přímo od českého výrobce za skvělé ceny. Mateří mřížky a další vybavení pro včelaře. Poctivá česká výroba bez prostředníků.",
   keywords: [
     "včelařské potřeby",
     "mateří mřížka",
-    "odvíčkovací talíř",
-    "nádoba pod medomet",
     "včelařství",
     "včelí úly",
     "med",
@@ -48,7 +46,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Včelařské potřeby Bubeník - eshop",
     description:
-      "Kvalitní včelařské potřeby přímo od českého výrobce za skvělé ceny. Mateří mřížky, odvíčkovací talíře, nádoby pod medomet.",
+      "Kvalitní mateří mřížky přímo od českého výrobce za skvělé ceny.",
     url: "https://vcelarstvi-bubenik.cz",
     siteName: "Včelařské potřeby Bubeník",
     locale: "cs_CZ",
@@ -66,7 +64,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Včelařské potřeby Bubeník - eshop",
     description:
-      "Kvalitní včelařské potřeby přímo od českého výrobce za skvělé ceny.",
+      "Kvalitní mateří mřížky přímo od českého výrobce za skvělé ceny.",
     images: ["https://shop.vcelarstvi-bubenik.cz/images/logo.png"],
   },
   alternates: {
