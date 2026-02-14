@@ -95,39 +95,51 @@ export default async function HomePage() {
           <h1 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
             Poctivé včelařské vybavení přímo od výrobce
           </h1>
-          <p className="text-base text-stone-700 sm:text-lg">
-            Máte atypické rozměry nebo specifické nároky na materiál? Jako
-            výrobce se vám přizpůsobím. Mé mateří mřížky
-            navrhuji tak, aby vám šetřily čas při práci s medem. Poctivá česká
-            výroba bez prostředníků a za férové ceny.
-          </p>
-          <h3 className="text-balance text-xl font-bold tracking-tight sm:text-2xl lg:text-3xl">
-          Hlavní výhody mého řešení:
-          </h3>
-          <ul className="space-y-2 ml-6 list-disc marker:text-blue-500 text-base text-stone-700 sm:text-lg">
-            <li>
-              <strong>Maximální průchodnost:</strong> Včely mřížkou procházejí přirozeně a bez odporu. Neztrácejí pylové rousky a rychleji nosí sladinu do medníku.
-            </li>
-            <li>
-              <strong>Šetrnost k včelám:</strong> Dráty jsou dokonale hladké a oblé. Nehrozí poškození křídel ani odírání chloupků.
-            </li>
-            <li>
-              <strong>Stoprocentní spolehlivost:</strong> Přesné rozestupy drátů (v toleranci desetin mm) nepustí matku nahoru. Už žádné zakladení plástů v medníku.
-            </li>
-            <li>
-              <strong>Snadná údržba:</strong> Mřížku můžete vyvařit, opálit plamenem nebo oškrábat rozpěrákem. Nerez vydrží vše.
-            </li>
-          </ul>
-        </section>
+<div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-8">
+  
+  {/* Column 1: Text and Benefits */}
+  <section>
+    <p className="mb-8 text-base text-stone-700 sm:text-lg">
+      Máte atypické rozměry nebo specifické nároky na materiál? Jako
+      výrobce se vám přizpůsobím. Mé mateří mřížky
+      navrhuji tak, aby vám šetřily čas při práci s medem. Poctivá česká
+      výroba bez prostředníků a za férové ceny.
+    </p>
+    
+    <h3 className="mb-4 text-balance text-xl font-bold tracking-tight sm:text-2xl lg:text-3xl">
+      Hlavní výhody mého řešení:
+    </h3>
+    
+    <ul className="ml-6 space-y-2 text-base list-disc text-stone-700 marker:text-blue-500 sm:text-lg">
+      <li>
+        <strong>Maximální průchodnost:</strong> Včely mřížkou procházejí přirozeně a bez odporu. Neztrácejí pylové rousky a rychleji nosí sladinu do medníku.
+      </li>
+      <li>
+        <strong>Šetrnost k včelám:</strong> Dráty jsou dokonale hladké a oblé. Nehrozí poškození křídel ani odírání chloupků.
+      </li>
+      <li>
+        <strong>Stoprocentní spolehlivost:</strong> Přesné rozestupy drátů (v toleranci desetin mm) nepustí matku nahoru. Už žádné zakladení plástů v medníku.
+      </li>
+      <li>
+        <strong>Snadná údržba:</strong> Mřížku můžete vyvařit, opálit plamenem nebo oškrábat rozpěrákem. Nerez vydrží vše.
+      </li>
+    </ul>
+  </section>
 
-        <section className="mt-12">
-          <h2 className="mb-6 text-2xl font-bold text-stone-900">Moje produkty</h2>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </section>
+  {/* Column 2: Products */}
+  {/* Note: I removed the mt-12 here because the parent grid's gap now handles the spacing! */}
+  <section>
+    <h2 className="mb-6 text-2xl font-bold text-stone-900">Moje produkty</h2>
+    
+    {/* I adjusted the inner grid to max out at 2 columns. Since this whole section is now restricted to half the screen width, 3 columns would make the product cards too squished. */}
+    <div className="grid gap-6 sm:grid-cols-2">
+      {products.map((product) => (
+        <ProductCard key={product.id} product={product} />
+      ))}
+    </div>
+  </section>
+
+</div>
       </main>
     </>
   );
