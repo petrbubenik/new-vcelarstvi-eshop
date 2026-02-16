@@ -6,9 +6,9 @@ export function Footer() {
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
         <div className="grid gap-6 sm:gap-8 md:grid-cols-2">
           <div>
-            <h3 className="mb-3 text-base font-semibold text-amber-900 sm:text-lg">
+            <h2 className="mb-3 text-base font-semibold text-amber-900 sm:text-lg">
               Poctivé včelařské řemeslo od roku 2010
-            </h3>
+            </h2>
             <p className="text-xs leading-relaxed text-stone-600 sm:text-sm">
               Už více než 15 let pro vás vyrábím vybavení, kterému věří stovky
               včelařů po celé zemi. Mé výrobky nejsou jen zboží, ale výsledek
@@ -16,7 +16,7 @@ export function Footer() {
             </p>
           </div>
           <div>
-            <h3 className="mb-3 text-base font-semibold text-amber-900 sm:text-lg">Kontakt</h3>
+            <h2 className="mb-3 text-base font-semibold text-amber-900 sm:text-lg">Kontakt</h2>
             <ul className="space-y-1 text-xs text-stone-600 sm:text-sm">
               <li className="font-semibold text-stone-900">Petr Bubeník</li>
               <li>
