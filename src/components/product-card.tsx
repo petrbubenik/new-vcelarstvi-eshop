@@ -36,17 +36,20 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={`/produkt/${product.slug}`}>
       <Card className="h-full transition-shadow hover:shadow-lg">
-        <CardHeader className="p-0">
-          <div className="relative aspect-square overflow-hidden rounded-t-xl bg-stone-100">
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              className="object-cover transition-transform hover:scale-105"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            />
-          </div>
-        </CardHeader>
+      <CardHeader className="p-0">
+        {/* 1. Removed aspect-square. Added h-52 (208px tall) and w-full. */}
+        {/* 2. Added p-6 to create empty space so the image doesn't touch the edges. */}
+        <div className="relative h-52 w-full overflow-hidden rounded-t-xl bg-stone-100 p-6">
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            {/* 3. Changed object-cover to object-contain so the whole grid is visible. */}
+            className="object-contain transition-transform hover:scale-105"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        </div>
+      </CardHeader>
         <CardContent className="p-3 sm:p-4">
           <h3 className="text-base font-semibold text-stone-900 sm:text-lg">
             {product.name}
