@@ -20,7 +20,7 @@ export function ProductCard({ product }: ProductCardProps) {
       style: "currency",
       currency: "CZK",
       minimumFractionDigits: 0,
-    }).format(price / 100);
+    }).format(price);
   };
 
   const lowestPrice = product.variants[0]?.price || 0;
