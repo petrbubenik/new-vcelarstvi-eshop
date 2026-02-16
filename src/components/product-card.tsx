@@ -48,9 +48,9 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         </CardHeader>
         <CardContent className="p-3 sm:p-4">
-          <h3 className="text-base font-semibold text-stone-900 sm:text-lg">
+          <h2 className="text-base font-semibold text-stone-900 sm:text-lg">
             {product.name}
-          </h3>
+          </h2>
           <p className="mt-2 line-clamp-2 text-xs text-stone-600 sm:text-sm">
             {product.description}
           </p>
