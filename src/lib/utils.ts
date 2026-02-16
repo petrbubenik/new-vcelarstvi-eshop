@@ -10,5 +10,5 @@ export function formatPrice(price: number) {
     style: "currency",
     currency: "CZK",
     minimumFractionDigits: 0,
-  }).format(price / 100);
+  }).format(price);
 }
