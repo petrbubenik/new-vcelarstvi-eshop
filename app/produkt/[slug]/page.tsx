@@ -95,24 +95,21 @@ export default async function ProductPage({
     "@type": "Product",
     name: product.name,
     description: product.description,
-    image: product.image,
+    image: `https://vcelarstvi-bubenik.cz${product.image}`,
     brand: {
       "@type": "Brand",
       name: "Včelařské potřeby Bubeník",
     },
     offers: {
       "@type": "AggregateOffer",
-      lowPrice: product.variants[0]?.price
-        ? (product.variants[0].price)
-        : 0,
-      highPrice: product.variants[product.variants.length - 1]?.price
-        ? (product.variants[product.variants.length - 1].price)
-        : 0,
+      lowPrice: product.variants[0]?.price ?? 0,
+      highPrice: product.variants[product.variants.length - 1]?.price ?? 0,
       priceCurrency: "CZK",
       availability: inStock
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
       url: `https://vcelarstvi-bubenik.cz/produkt/${product.slug}`,
+      itemCondition: "https://schema.org/NewCondition",
     },
   };
 

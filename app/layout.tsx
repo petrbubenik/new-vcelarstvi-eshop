@@ -76,9 +76,30 @@ type RootLayoutProps = {
   children: React.ReactNode;
 };
 
+const localBusinessData = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Včelařské potřeby Bubeník",
+  "image": "https://vcelarstvi-bubenik.cz/images/logo.png",
+  "telephone": "+420777553319",
+  "email": "obchod@vcelarstvi-bubenik.cz",
+  "url": "https://vcelarstvi-bubenik.cz/",
+  "taxID": "CZ6307021919",
+  "founder": {
+    "@type": "Person",
+    "name": "Petr Bubeník"
+  }
+};
+
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="cs" className={inter.variable}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessData) }}
+        />
+      </head>
       <body className="min-h-screen bg-stone-50 font-sans text-stone-900 antialiased">
         <div className="flex min-h-screen flex-col">
           <Header />
