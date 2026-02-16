@@ -26,15 +26,15 @@ async function main() {
       ]),
       variants: {
         create: [
-          { size: "39×39 cm", price: 14000, stock: 50 },
-          { size: "39×42 cm", price: 14500, stock: 50 },
-          { size: "39×50 cm", price: 15000, stock: 50 },
-          { size: "39×54 cm", price: 16000, stock: 50 },
-          { size: "39×57 cm", price: 16500, stock: 50 },
-          { size: "39×60 cm", price: 17000, stock: 50 },
-          { size: "39×63 cm", price: 17500, stock: 50 },
-          { size: "39×66 cm", price: 18000, stock: 50 },
-          { size: "39×70 cm", price: 19000, stock: 50 },
+          { size: "39×39 cm", price: 140, stock: 50 },
+          { size: "39×42 cm", price: 145, stock: 50 },
+          { size: "39×50 cm", price: 150, stock: 50 },
+          { size: "39×54 cm", price: 160, stock: 50 },
+          { size: "39×57 cm", price: 165, stock: 50 },
+          { size: "39×60 cm", price: 170, stock: 50 },
+          { size: "39×63 cm", price: 175, stock: 50 },
+          { size: "39×66 cm", price: 180, stock: 50 },
+          { size: "39×70 cm", price: 190, stock: 50 },
         ],
       },
     },
@@ -49,7 +49,7 @@ async function main() {
         "Praktický odvíčkovací talíř pro ruční odvíčkování medných pláství. Povrch s odváděcím žlábkem pro efektivní sběr medu při zakrucování. Vyrobeno z kvalitního plastu.",
       image: "/images/talir.jpg",
       variants: {
-        create: [{ size: null, price: 25000, stock: 30 }],
+        create: [{ size: null, price: 250, stock: 30 }],
       },
     },
   });
@@ -63,7 +63,7 @@ async function main() {
         "Nádoba pod medomet o objemu 30 litrů. Vyrobena z kvalitního nerezu s pevným dnem a výpustným kohoutkem. Ideální pro sběr medu při točení medometem. Snadná údržba a čištění.",
       image: "/images/nadoba.jpg",
       variants: {
-        create: [{ size: null, price: 45000, stock: 20 }],
+        create: [{ size: null, price: 450, stock: 20 }],
       },
     },
   });
@@ -82,7 +82,7 @@ async function main() {
       const price = new Intl.NumberFormat("cs-CZ", {
         style: "currency",
         currency: "CZK",
-      }).format(variants[0].price / 100);
+      }).format(variants[0].price);
       console.log(`   - ${product.name} - ${price}`);
     } else {
       console.log(`   - ${product.name} (${variants.length} variant)`);
@@ -90,7 +90,7 @@ async function main() {
         const price = new Intl.NumberFormat("cs-CZ", {
           style: "currency",
           currency: "CZK",
-        }).format(v.price / 100);
+        }).format(v.price);
         console.log(`     * ${v.size} - ${price}`);
       }
     }
