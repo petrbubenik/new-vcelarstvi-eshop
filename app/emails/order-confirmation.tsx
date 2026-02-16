@@ -8,7 +8,6 @@ import {
   Preview,
   Section,
   Text,
-  Img,
 } from "@react-email/components";
 
 interface OrderConfirmationEmailProps {
@@ -112,24 +111,12 @@ export function OrderConfirmationEmail({
   // Bank details
   const bankAccount = "1209442007/2700";
 
-  // Logo URL - use absolute URL
-  const logoUrl = "https://vcelarstvi-bubenik.cz/images/logo.png";
-
   return (
     <Html>
       <Head />
       <Preview>Potvrzení objednávky {orderId}</Preview>
       <Body style={main}>
         <Container style={container}>
-          {/* Logo */}
-          <div style={{ textAlign: "center", marginBottom: "20px" }}>
-            <img
-              src={logoUrl}
-              alt="Včelařské potřeby Bubeník"
-              style={{ width: "120px", height: "auto", display: "block", margin: "0 auto" }}
-            />
-          </div>
-
           <Heading style={heading}>Potvrzení objednávky</Heading>
 
           <Text style={text}>Vážený zákazníku,</Text>
