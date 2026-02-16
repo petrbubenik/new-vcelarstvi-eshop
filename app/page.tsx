@@ -107,7 +107,7 @@ export default async function HomePage() {
     </div>
 
     {/* The two-column grid */}
-    <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[5fr_5fr] lg:gap-8">
+    <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[4fr_6fr] lg:gap-8">
 
       {/* Left Column: Single Product */}
       <section>
@@ -122,9 +122,12 @@ export default async function HomePage() {
       {/* Right Column: Benefits List */}
       <section>
         <h3 className="mb-6 text-2xl font-bold text-stone-900">
-          Hlavní výhody mého řešení:
+          Proč dát přednost kovové mateří mřížce před plastovou?
         </h3>
         <ul className="ml-6 space-y-2 text-base list-disc text-stone-700 marker:text-[#87544EFF] sm:text-lg">
+          <li>
+            <strong>Vydrží roky:</strong> Kovová mateří mřížka představuje pro včely i včelaře mnohem šetrnější a trvanlivější řešení než běžné plastové varianty.
+          </li>
           <li>
             <strong>Maximální průchodnost:</strong> Včely mřížkou procházejí přirozeně a bez odporu. Neztrácejí pylové rousky a rychleji nosí sladinu do medníku.
           </li>
