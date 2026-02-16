@@ -121,9 +121,9 @@ export default async function HomePage() {
 
       {/* Right Column: Benefits List */}
       <section>
-        <h3 className="mb-6 text-2xl font-bold text-stone-900">
+        <h2 className="mb-6 text-2xl font-bold text-stone-900">
           Proč dát přednost kovové mateří mřížce před plastovou?
-        </h3>
+        </h2>
         <ul className="ml-6 space-y-2 text-base list-disc text-stone-700 marker:text-[#87544EFF] sm:text-lg">
           <li>
             <strong>Vydrží roky:</strong> Kovová mateří mřížka představuje pro včely i včelaře mnohem šetrnější a trvanlivější řešení než běžné plastové varianty.
