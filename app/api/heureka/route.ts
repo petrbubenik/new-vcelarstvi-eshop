@@ -33,7 +33,7 @@ async function getHeurekaFeed(): Promise<string> {
   for (const product of products) {
     for (const variant of product.variants) {
       const availabilityText = variant.stock > 0
-        ? `${variant.stock} ks`
+        ? "Skladem"
         : "Není skladem";
 
       const deliveryDate = variant.stock > 0 ? 0 : 14; // 0 = in stock, 14 = 2 weeks
@@ -46,7 +46,7 @@ async function getHeurekaFeed(): Promise<string> {
         IMGURL: product.image.startsWith("http")
           ? product.image
           : `${baseUrl}${product.image}`,
-        PRICE_VAT: variant.price / 100, // Convert from cents to CZK
+        PRICE_VAT: variant.price, // Price in CZK (whole number)
         AVAILABILITY: availabilityText,
         DELIVERY_DATE: deliveryDate,
       };
