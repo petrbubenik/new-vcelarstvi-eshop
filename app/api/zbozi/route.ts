@@ -45,7 +45,7 @@ async function getZboziFeed(): Promise<string> {
     },
   });
 
-  const baseUrl = "https://vcelarstvi-bubenik.cz";
+  const baseUrl = "https://www.vcelarstvi-bubenik.cz";
   const categoryText = "Hobby | Chovatelství | Včelařství | Včelařské potřeby";
   const manufacturer = "Petr Bubeník";
 
