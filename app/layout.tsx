@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     template: "%s | Včelařské potřeby Bubeník"
   },
   description:
-    "Kvalitní včelařské potřeby přímo od českého výrobce za skvělé ceny. Mateří mřížky a další vybavení pro včelaře. Poctivá česká výroba bez prostředníků.",
+    "Hledáte poctivé včelařské potřeby? Nabízím kovové mateří mřížky vlastní výroby s maximální průchodností pro včely. Poctivá česká kvalita bez prostředníků.",
   keywords: [
     "včelařské potřeby",
     "mateří mřížka",
