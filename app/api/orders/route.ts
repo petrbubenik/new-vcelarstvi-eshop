@@ -361,9 +361,9 @@ export async function POST(request: NextRequest) {
       return order;
     });
 
-    // Send emails (fire and forget - don't block the response)
+    // Send emails
     // Send notification email
-    sendNotificationEmail({
+    await sendNotificationEmail({
       customerName: validatedData.customerName,
       customerEmail: validatedData.email,
       customerPhone: validatedData.phone,
@@ -386,7 +386,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Send confirmation emails
-    sendConfirmationEmails(result.id, {
+    await sendConfirmationEmails(result.id, {
       customerName: validatedData.customerName,
       customerEmail: validatedData.email,
       customerPhone: validatedData.phone,
