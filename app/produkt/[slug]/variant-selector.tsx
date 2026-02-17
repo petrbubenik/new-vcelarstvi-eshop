@@ -20,9 +20,11 @@ interface ProductWithVariants extends Product {
 
 interface VariantSelectorProps {
   product: ProductWithVariants;
+  selectedMaterial?: string;
+  selectedSize?: string;
 }
 
-export function VariantSelector({ product }: VariantSelectorProps) {
+export function VariantSelector({ product, selectedMaterial: initialMaterial, selectedSize: initialSize }: VariantSelectorProps) {
   const [selectedMaterialType, setSelectedMaterialType] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantityInput, setQuantityInput] = useState<string>("1");
@@ -73,19 +75,23 @@ export function VariantSelector({ product }: VariantSelectorProps) {
     }
   }, [product.variants, filteredVariants, hasMaterialTypes, selectedMaterialType, selectedSize, sizes]);
 
-  // Auto-select first material type on mount
+  // Initialize from URL params on mount
   useEffect(() => {
-    if (hasMaterialTypes && materialTypes.length > 0 && !selectedMaterialType) {
+    if (initialMaterial && materialTypes.includes(initialMaterial)) {
+      setSelectedMaterialType(initialMaterial);
+    } else if (hasMaterialTypes && materialTypes.length > 0 && !selectedMaterialType) {
       setSelectedMaterialType(materialTypes[0]);
     }
-  }, [hasMaterialTypes, materialTypes, selectedMaterialType]);
+  }, [initialMaterial, materialTypes, hasMaterialTypes]);
 
-  // Auto-select first size when available
+  // Initialize size from URL params
   useEffect(() => {
-    if (sizes.length > 0 && !selectedSize) {
+    if (initialSize && sizes.includes(initialSize)) {
+      setSelectedSize(initialSize);
+    } else if (sizes.length > 0 && !selectedSize) {
       setSelectedSize(sizes[0]);
     }
-  }, [sizes, selectedSize]);
+  }, [initialSize, sizes]);
 
   const hasMultipleVariants = product.variants.length > 1;
 

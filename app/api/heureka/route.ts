@@ -35,6 +35,29 @@ interface HeurekaItem {
   params: Array<{ name: string; value: string }>;
 }
 
+// Helper function to convert material type to URL-friendly code
+function materialToCode(material: string | null): string | null {
+  if (!material) return null;
+  const mapping: Record<string, string> = {
+    "pozinkovaná": "pozink",
+    "mosazná": "mosaz",
+    "pozlacená": "pozlat",
+    "ocelová": "ocel",
+  };
+  const normalized = material.toLowerCase();
+  return mapping[normalized] || material.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+// Helper function to convert size to URL-friendly code (remove special chars)
+function sizeToCode(size: string | null): string | null {
+  if (!size) return null;
+  return size
+    .toLowerCase()
+    .replace(/×/g, "x")  // Replace × with x
+    .replace(/\s+/g, "")  // Remove spaces
+    .replace(/[^a-z0-9x]/g, "");  // Remove other special chars
+}
+
 async function getHeurekaFeed(): Promise<string> {
   const products = await prisma.product.findMany({
     include: {
@@ -75,13 +98,15 @@ async function getHeurekaFeed(): Promise<string> {
         ? `${product.description} (Rozměr: ${variant.size})`
         : product.description;
 
-      // Build variant URL
+      // Build variant URL with URL-friendly codes
       const variantParams: string[] = [];
-      if (variant.materialType) {
-        variantParams.push(`material=${encodeURIComponent(variant.materialType)}`);
+      const materialCode = materialToCode(variant.materialType);
+      const sizeCode = sizeToCode(variant.size);
+      if (materialCode) {
+        variantParams.push(`material=${materialCode}`);
       }
-      if (variant.size) {
-        variantParams.push(`size=${encodeURIComponent(variant.size)}`);
+      if (sizeCode) {
+        variantParams.push(`size=${sizeCode}`);
       }
       const variantUrl = variantParams.length > 0
         ? `${baseUrl}/produkt/${product.slug}?${variantParams.join("&")}`

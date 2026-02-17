@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { VariantSelector } from "./variant-selector";
+import { materialToCode, sizeToCode, codeToMaterial, codeToSize } from "@/lib/variant-utils";
 
 // Force dynamic rendering - don't cache product pages
 export const dynamic = 'force-dynamic';
@@ -23,10 +24,13 @@ async function getProduct(slug: string) {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ material?: string; size?: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const { material, size } = await searchParams;
   const product = await getProduct(slug);
 
   if (!product) {
@@ -54,29 +58,46 @@ export async function generateMetadata({
     priceText = formatPrice(lowestPrice);
   }
 
+  // Build canonical URL with parameters
+  const canonicalParams = new URLSearchParams();
+  if (material) canonicalParams.set("material", material);
+  if (size) canonicalParams.set("size", size);
+  const canonicalUrl = `https://www.vcelarstvi-bubenik.cz/produkt/${slug}${canonicalParams.toString() ? `?${canonicalParams.toString()}` : ""}`;
+
   return {
     title: `${product.name} | Včelařské potřeby Bubeník`,
     description: product.description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: product.name,
       description: product.description,
       images: [product.image],
       type: "website",
+      url: canonicalUrl,
     },
   };
 }
 
 export default async function ProductPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ material?: string; size?: string }>;
 }) {
   const { slug } = await params;
+  const { material: materialCode, size: sizeCode } = await searchParams;
   const product = await getProduct(slug);
 
   if (!product) {
     notFound();
   }
+
+  // Convert URL codes back to display names for VariantSelector
+  const material = codeToMaterial(materialCode);
+  const size = codeToSize(sizeCode);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("cs-CZ", {
@@ -192,7 +213,7 @@ export default async function ProductPage({
               </div>
             </div>
 
-            <VariantSelector product={product} />
+            <VariantSelector product={product} selectedMaterial={material} selectedSize={size} />
           </div>
         </div>
       </main>
