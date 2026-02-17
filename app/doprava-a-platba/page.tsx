@@ -56,7 +56,7 @@ export default function DopravaAPlatbaPage() {
                     do 2 500 Kč
                   </td>
                   <td className="px-4 py-3 font-semibold text-amber-700">
-                    129 Kč
+                    125 Kč
                   </td>
                 </tr>
                 <tr>
