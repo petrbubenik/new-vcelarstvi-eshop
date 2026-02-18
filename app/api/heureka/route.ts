@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { materialToSlug } from "@/lib/variant-utils";
 
-const BASE_URL = "https://vcelarstvi-bubenik.cz";
+const BASE_URL = "https://www.vcelarstvi-bubenik.cz";
 
 // Helper to escape XML special characters
 function escapeXml(unsafe: string): string {
