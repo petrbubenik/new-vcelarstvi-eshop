@@ -63,10 +63,10 @@ export async function generateMetadata({
     variantParams.material ? parseVariantParams(variantParams).material : undefined,
     variantParams.size
   );
-  const canonicalUrl = `https://vcelarstvi-bubenik.cz/produkt/${slug}${canonicalParams.toString() ? `?${canonicalParams.toString()}` : ""}`;
+  const canonicalUrl = `https://www.vcelarstvi-bubenik.cz/produkt/${slug}${canonicalParams.toString() ? `?${canonicalParams.toString()}` : ""}`;
 
   return {
-    title: `${product.name} | Včelařské potřeby Bubeník`,
+    title: product.name,
     description: product.description,
     alternates: {
       canonical: canonicalUrl,

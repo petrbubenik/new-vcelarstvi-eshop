@@ -1,0 +1,15 @@
+{
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "vcelarstvi-bubenik.cz"
+        }
+      ],
+      "destination": "https://www.vcelarstvi-bubenik.cz/:path*",
+      "permanent": true
+    }
+  ]
+}

@@ -12,7 +12,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://vcelarstvi-bubenik.cz"),
+  metadataBase: new URL("https://www.vcelarstvi-bubenik.cz"),
   title: {
     default: "Včelařské potřeby Bubeník - eshop | Kvalitní česká výroba",
     template: "%s | Včelařské potřeby Bubeník"
@@ -47,13 +47,13 @@ export const metadata: Metadata = {
     title: "Včelařské potřeby Bubeník - eshop",
     description:
       "Kvalitní mateří mřížky přímo od českého výrobce za skvělé ceny.",
-    url: "https://vcelarstvi-bubenik.cz",
+    url: "https://www.vcelarstvi-bubenik.cz",
     siteName: "Včelařské potřeby Bubeník",
     locale: "cs_CZ",
     type: "website",
     images: [
       {
-        url: "https://vcelarstvi-bubenik.cz/images/logo.png",
+        url: "https://www.vcelarstvi-bubenik.cz/images/logo.png",
         width: 1200,
         height: 630,
         alt: "Včelařské potřeby Bubeník"
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
     images: ["https://shop.vcelarstvi-bubenik.cz/images/logo.png"],
   },
   alternates: {
-    canonical: "https://vcelarstvi-bubenik.cz"
+    canonical: "https://www.vcelarstvi-bubenik.cz"
   }
 };
 
@@ -80,10 +80,10 @@ const localBusinessData = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   "name": "Včelařské potřeby Bubeník",
-  "image": "https://vcelarstvi-bubenik.cz/images/logo.png",
+  "image": "https://www.vcelarstvi-bubenik.cz/images/logo.png",
   "telephone": "+420777553319",
   "email": "obchod@vcelarstvi-bubenik.cz",
-  "url": "https://vcelarstvi-bubenik.cz/",
+  "url": "https://www.vcelarstvi-bubenik.cz/",
   "taxID": "CZ6307021919",
   "founder": {
     "@type": "Person",
