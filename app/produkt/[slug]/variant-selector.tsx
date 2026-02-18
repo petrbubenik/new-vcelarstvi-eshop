@@ -20,8 +20,8 @@ interface ProductWithVariants extends Product {
 
 interface VariantSelectorProps {
   product: ProductWithVariants;
-  selectedMaterial?: string;
-  selectedSize?: string;
+  selectedMaterial?: string | null;
+  selectedSize?: string | null;
 }
 
 export function VariantSelector({ product, selectedMaterial: initialMaterial, selectedSize: initialSize }: VariantSelectorProps) {
