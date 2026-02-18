@@ -46,11 +46,7 @@ function buildProductName(productName: string, material: string | null, size: st
   }
 
   if (parts.length > 0) {
-    name += ` – ${parts.join(" (").replace("(", "").replace(")", "")}`;
-    // Add closing parenthesis if we added opening
-    if (parts.length > 1) {
-      name += ")";
-    }
+    name += ` – ${parts.join(", ")}`;
   }
 
   return name;
