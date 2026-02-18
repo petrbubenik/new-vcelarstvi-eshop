@@ -192,9 +192,9 @@ export function VariantSelector({ product, selectedMaterial: initialMaterial, se
                 if (!variant) return null;
                 return (
                   <SelectItem key={variant.id} value={size}>
-                    <div className="flex items-center justify-between gap-4">
-                      <span>{size}</span>
-                      <span className="font-semibold text-amber-700">
+                    <div className="flex w-full items-center justify-between gap-2">
+                      <span className="min-w-0 flex-1">{size}</span>
+                      <span className="shrink-0 font-semibold text-amber-700">
                         {formatPrice(variant.price)}
                       </span>
                     </div>

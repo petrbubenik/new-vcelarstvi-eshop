@@ -34,16 +34,23 @@ export function materialToCode(material: string | null): string | null {
 /**
  * Convert size code from URL to display size
  * e.g., "400x400" -> "400×400"
+ * Also handles sizes with "cm" suffix: "400x400cm" -> "400×400 cm"
  */
 export function codeToSize(code: string | null): string | null {
   if (!code) return null;
-  // Convert "x" to "×"
-  return code.replace(/x/gi, "×");
+  // Convert "x" to "×" and add space before "cm" if present
+  let result = code.replace(/x/gi, "×");
+  // Add space before "cm" if it exists but has no space before it
+  result = result.replace(/×(\d+)cm/g, "×$1 cm");
+  // If just "cm" at end without space, add space
+  result = result.replace(/(\d+)cm$/g, "$1 cm");
+  return result;
 }
 
 /**
  * Convert display size to URL-friendly code
- * e.g., "39×39 cm" -> "39x39cm"
+ * e.g., "39×39 cm" -> "39x39cm", "435×370 cm" -> "435x370cm"
+ * Removes special characters and spaces for URL-friendly format
  */
 export function sizeToCode(size: string | null): string | null {
   if (!size) return null;
