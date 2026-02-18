@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ShoppingCart, Minus, Plus, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { useCartStore } from "@/lib/cart-store";
 import { toast } from "sonner";
+import { buildVariantParams } from "@/lib/variant-utils";
 import type { Product, ProductVariant } from "@prisma/client";
 
 interface ProductWithVariants extends Product {
@@ -20,9 +22,14 @@ interface ProductWithVariants extends Product {
 
 interface VariantSelectorProps {
   product: ProductWithVariants;
+  initialMaterial?: string;
+  initialSize?: string;
 }
 
-export function VariantSelector({ product }: VariantSelectorProps) {
+export function VariantSelector({ product, initialMaterial, initialSize }: VariantSelectorProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [selectedMaterialType, setSelectedMaterialType] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantityInput, setQuantityInput] = useState<string>("1");
@@ -73,19 +80,46 @@ export function VariantSelector({ product }: VariantSelectorProps) {
     }
   }, [product.variants, filteredVariants, hasMaterialTypes, selectedMaterialType, selectedSize, sizes]);
 
-  // Auto-select first material type on mount
+  // Auto-select material type on mount (prefer initial value from URL)
   useEffect(() => {
     if (hasMaterialTypes && materialTypes.length > 0 && !selectedMaterialType) {
-      setSelectedMaterialType(materialTypes[0]);
+      // Use initial material if provided and valid, otherwise use first available
+      if (initialMaterial && materialTypes.includes(initialMaterial)) {
+        setSelectedMaterialType(initialMaterial);
+      } else {
+        setSelectedMaterialType(materialTypes[0]);
+      }
     }
-  }, [hasMaterialTypes, materialTypes, selectedMaterialType]);
+  }, [hasMaterialTypes, materialTypes, selectedMaterialType, initialMaterial]);
 
-  // Auto-select first size when available
+  // Auto-select size when available (prefer initial value from URL)
   useEffect(() => {
     if (sizes.length > 0 && !selectedSize) {
-      setSelectedSize(sizes[0]);
+      // Use initial size if provided and valid, otherwise use first available
+      if (initialSize && sizes.includes(initialSize)) {
+        setSelectedSize(initialSize);
+      } else {
+        setSelectedSize(sizes[0]);
+      }
     }
-  }, [sizes, selectedSize]);
+  }, [sizes, selectedSize, initialSize]);
+
+  // Update URL when selection changes
+  useEffect(() => {
+    // Skip if nothing selected yet
+    if (!selectedMaterialType || !selectedSize) return;
+
+    // Build new URL parameters
+    const params = buildVariantParams(selectedMaterialType, selectedSize);
+    const newQueryString = params.toString();
+
+    // Only update if URL has actually changed
+    const currentQueryString = searchParams.toString();
+    if (newQueryString !== currentQueryString) {
+      const newUrl = `${window.location.pathname}?${newQueryString}`;
+      router.replace(newUrl, { scroll: false });
+    }
+  }, [selectedMaterialType, selectedSize, router, searchParams]);
 
   const hasMultipleVariants = product.variants.length > 1;
 

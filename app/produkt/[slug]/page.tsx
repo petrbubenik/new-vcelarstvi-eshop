@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { VariantSelector } from "./variant-selector";
+import { parseVariantParams } from "@/lib/variant-utils";
 
 // Force dynamic rendering - don't cache product pages
 export const dynamic = 'force-dynamic';
@@ -68,11 +69,17 @@ export async function generateMetadata({
 
 export default async function ProductPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ material?: string; size?: string }>;
 }) {
   const { slug } = await params;
   const product = await getProduct(slug);
+
+  // Parse variant parameters from URL
+  const variantParams = await searchParams;
+  const initialVariant = parseVariantParams(variantParams);
 
   if (!product) {
     notFound();
@@ -192,7 +199,7 @@ export default async function ProductPage({
               </div>
             </div>
 
-            <VariantSelector product={product} />
+            <VariantSelector product={product} initialMaterial={initialVariant.material} initialSize={initialVariant.size} />
           </div>
         </div>
       </main>

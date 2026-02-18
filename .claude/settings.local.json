@@ -9,7 +9,9 @@
       "Bash(npm run dev:*)",
       "Bash(node:*)",
       "Bash(curl:*)",
-      "Bash(dig:*)"
+      "Bash(dig:*)",
+      "Bash(npm run build:*)",
+      "Bash(git diff:*)"
     ]
   }
 }
