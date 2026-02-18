@@ -4,7 +4,7 @@ import { MetadataRoute } from 'next'
 export const dynamic = 'force-dynamic'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://vcelarstvi-bubenik.cz'
+  const baseUrl = 'https://www.vcelarstvi-bubenik.cz'
 
   try {
     const { prisma } = await import('@/lib/prisma')
