@@ -99,6 +99,11 @@ export default async function ProductPage({
   const material = codeToMaterial(materialCode ?? null);
   const size = codeToSize(sizeCode ?? null);
 
+  // Debug logging
+  console.log("ProductPage - URL params:", { materialCode, sizeCode });
+  console.log("ProductPage - Converted:", { material, size });
+  console.log("ProductPage - All variants:", product.variants.map(v => ({ id: v.id, size: v.size, materialType: v.materialType })));
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("cs-CZ", {
       style: "currency",

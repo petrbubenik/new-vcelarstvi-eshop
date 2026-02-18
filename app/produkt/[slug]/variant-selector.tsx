@@ -77,6 +77,7 @@ export function VariantSelector({ product, selectedMaterial: initialMaterial, se
 
   // Initialize from URL params on mount
   useEffect(() => {
+    console.log("VariantSelector - initialMaterial:", initialMaterial, "materialTypes:", materialTypes);
     if (initialMaterial && materialTypes.includes(initialMaterial)) {
       setSelectedMaterialType(initialMaterial);
     } else if (hasMaterialTypes && materialTypes.length > 0 && !selectedMaterialType) {
@@ -86,6 +87,7 @@ export function VariantSelector({ product, selectedMaterial: initialMaterial, se
 
   // Initialize size from URL params
   useEffect(() => {
+    console.log("VariantSelector - initialSize:", initialSize, "sizes:", sizes);
     if (initialSize && sizes.includes(initialSize)) {
       setSelectedSize(initialSize);
     } else if (sizes.length > 0 && !selectedSize) {
@@ -191,10 +193,10 @@ export function VariantSelector({ product, selectedMaterial: initialMaterial, se
                 const variant = filteredVariants.find((v) => v.size === size);
                 if (!variant) return null;
                 return (
-                  <SelectItem key={variant.id} value={size}>
-                    <div className="flex w-full items-center justify-between gap-2">
-                      <span className="min-w-0 flex-1">{size}</span>
-                      <span className="shrink-0 font-semibold text-amber-700">
+                  <SelectItem key={variant.id} value={size} className="pr-14">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-normal">{size}</span>
+                      <span className="text-xs font-semibold text-amber-700">
                         {formatPrice(variant.price)}
                       </span>
                     </div>
