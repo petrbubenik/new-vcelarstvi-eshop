@@ -20,11 +20,9 @@ interface ProductWithVariants extends Product {
 
 interface VariantSelectorProps {
   product: ProductWithVariants;
-  selectedMaterial?: string | null;
-  selectedSize?: string | null;
 }
 
-export function VariantSelector({ product, selectedMaterial: initialMaterial, selectedSize: initialSize }: VariantSelectorProps) {
+export function VariantSelector({ product }: VariantSelectorProps) {
   const [selectedMaterialType, setSelectedMaterialType] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantityInput, setQuantityInput] = useState<string>("1");
@@ -75,25 +73,19 @@ export function VariantSelector({ product, selectedMaterial: initialMaterial, se
     }
   }, [product.variants, filteredVariants, hasMaterialTypes, selectedMaterialType, selectedSize, sizes]);
 
-  // Initialize from URL params on mount
+  // Auto-select first material type on mount
   useEffect(() => {
-    console.log("VariantSelector - initialMaterial:", initialMaterial, "materialTypes:", materialTypes);
-    if (initialMaterial && materialTypes.includes(initialMaterial)) {
-      setSelectedMaterialType(initialMaterial);
-    } else if (hasMaterialTypes && materialTypes.length > 0 && !selectedMaterialType) {
+    if (hasMaterialTypes && materialTypes.length > 0 && !selectedMaterialType) {
       setSelectedMaterialType(materialTypes[0]);
     }
-  }, [initialMaterial, materialTypes, hasMaterialTypes]);
+  }, [hasMaterialTypes, materialTypes, selectedMaterialType]);
 
-  // Initialize size from URL params
+  // Auto-select first size when available
   useEffect(() => {
-    console.log("VariantSelector - initialSize:", initialSize, "sizes:", sizes);
-    if (initialSize && sizes.includes(initialSize)) {
-      setSelectedSize(initialSize);
-    } else if (sizes.length > 0 && !selectedSize) {
+    if (sizes.length > 0 && !selectedSize) {
       setSelectedSize(sizes[0]);
     }
-  }, [initialSize, sizes]);
+  }, [sizes, selectedSize]);
 
   const hasMultipleVariants = product.variants.length > 1;
 
@@ -193,10 +185,10 @@ export function VariantSelector({ product, selectedMaterial: initialMaterial, se
                 const variant = filteredVariants.find((v) => v.size === size);
                 if (!variant) return null;
                 return (
-                  <SelectItem key={variant.id} value={size} className="pr-14">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="font-normal">{size}</span>
-                      <span className="text-xs font-semibold text-amber-700">
+                  <SelectItem key={variant.id} value={size}>
+                    <div className="flex items-center justify-between gap-4">
+                      <span>{size}</span>
+                      <span className="font-semibold text-amber-700">
                         {formatPrice(variant.price)}
                       </span>
                     </div>
