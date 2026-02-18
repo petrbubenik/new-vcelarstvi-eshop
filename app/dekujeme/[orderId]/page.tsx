@@ -91,7 +91,28 @@ export default async function ThankYouPage({
   const subtotal = order.total - order.deliveryCost - order.codFee;
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+    <>
+      {/* Heureka.cz THANK YOU PAGE script */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `(function(t, r, a, c, k, i, n, g) {t['ROIDataObject'] = k;
+          t[k]=t[k]||function(){(t[k].q=t[k].q||[]).push(arguments)},t[k].c=i;n=r.createElement(a),
+          g=r.getElementsByTagName(a)[0];n.async=1;n.src=c;g.parentNode.insertBefore(n,g)
+          })(window, document, 'script', '//www.heureka.cz/ocm/sdk.js?version=2&page=thank_you', 'heureka', 'cz');
+
+          heureka('authenticate', 'cc484995d6b95122e4e64d7921b7778cb648');
+
+          heureka('set_order_id', '${orderId}');
+          ${order.items.map(item =>
+            `heureka('add_product', '${item.variantId || item.productId}', '${item.product.name.replace(/'/g, "\\'")}', '${item.priceAtPurchase}', '${item.quantity}');`
+          ).join('\n          ')}
+          heureka('set_total_vat', '${order.total}');
+          heureka('set_currency', 'CZK');
+          heureka('send', 'Order');`,
+        }}
+      />
+      {/* End Heureka.cz THANK YOU PAGE script */}
+      <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-8 text-center">
         <div className="mb-4 flex justify-center">
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
@@ -369,5 +390,6 @@ export default async function ThankYouPage({
         </div>
       </div>
     </main>
+    </>
   );
 }

@@ -126,6 +126,16 @@ export default async function ProductPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
+      {/* Heureka.cz PRODUCT DETAIL script */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `(function(t, r, a, c, k, i, n, g) {t['ROIDataObject'] = k;
+          t[k]=t[k]||function(){(t[k].q=t[k].q||[]).push(arguments)},t[k].c=i;n=r.createElement(a),
+          g=r.getElementsByTagName(a)[0];n.async=1;n.src=c;g.parentNode.insertBefore(n,g)
+          })(window, document, 'script', '//www.heureka.cz/ocm/sdk.js?version=2&page=product_detail', 'heureka', 'cz');`,
+        }}
+      />
+      {/* End Heureka.cz PRODUCT DETAIL script */}
       <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
         <Link
           href="/"
