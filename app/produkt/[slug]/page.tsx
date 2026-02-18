@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { VariantSelector } from "./variant-selector";
-import { parseVariantParams } from "@/lib/variant-utils";
+import { parseVariantParams, buildVariantParams, materialToSlug } from "@/lib/variant-utils";
 
 // Force dynamic rendering - don't cache product pages
 export const dynamic = 'force-dynamic';
@@ -24,10 +24,13 @@ async function getProduct(slug: string) {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ material?: string; size?: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const variantParams = await searchParams;
   const product = await getProduct(slug);
 
   if (!product) {
@@ -55,14 +58,25 @@ export async function generateMetadata({
     priceText = formatPrice(lowestPrice);
   }
 
+  // Build canonical URL with variant parameters
+  const canonicalParams = buildVariantParams(
+    variantParams.material ? parseVariantParams(variantParams).material : undefined,
+    variantParams.size
+  );
+  const canonicalUrl = `https://vcelarstvi-bubenik.cz/produkt/${slug}${canonicalParams.toString() ? `?${canonicalParams.toString()}` : ""}`;
+
   return {
     title: `${product.name} | Včelařské potřeby Bubeník`,
     description: product.description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: product.name,
       description: product.description,
       images: [product.image],
       type: "website",
+      url: canonicalUrl,
     },
   };
 }
