@@ -33,15 +33,12 @@ export function materialToCode(material: string | null): string | null {
 
 /**
  * Convert size code from URL to display size
- * e.g., "39x39cm" -> "39×39 cm"
+ * e.g., "400x400" -> "400×400"
  */
 export function codeToSize(code: string | null): string | null {
   if (!code) return null;
-  // Convert "x" to "×" and add space before "cm"
-  return code
-    .replace(/x/g, "×")
-    .replace(/cm/g, " cm")
-    .replace(/(\d)(×)/g, "$1 $2");
+  // Convert "x" to "×"
+  return code.replace(/x/gi, "×");
 }
 
 /**
