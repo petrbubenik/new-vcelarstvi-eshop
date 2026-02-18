@@ -96,8 +96,8 @@ export default async function ProductPage({
   }
 
   // Convert URL codes back to display names for VariantSelector
-  const material = codeToMaterial(materialCode);
-  const size = codeToSize(sizeCode);
+  const material = codeToMaterial(materialCode ?? null);
+  const size = codeToSize(sizeCode ?? null);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("cs-CZ", {
