@@ -1,4 +1,4 @@
-# Včelařství E-shop (Next.js)
+# Včelařství Bubeník E-shop (Next.js)
 
 Minimalistický e‑shop pro český trh postavený na Next.js (App Router), TypeScriptu, Tailwind CSS, Shadcn UI a Prisma.
 
