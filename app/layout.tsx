@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     title: "Včelařské potřeby Bubeník - eshop",
     description:
       "Kvalitní mateří mřížky přímo od českého výrobce za skvělé ceny.",
-    images: ["https://shop.vcelarstvi-bubenik.cz/images/logo.png"],
+    images: ["https://www.vcelarstvi-bubenik.cz/images/logo.png"],
   },
   alternates: {
     canonical: "https://www.vcelarstvi-bubenik.cz"
