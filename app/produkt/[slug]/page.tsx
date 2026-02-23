@@ -58,12 +58,9 @@ export async function generateMetadata({
     priceText = formatPrice(lowestPrice);
   }
 
-  // Build canonical URL with variant parameters
-  const canonicalParams = buildVariantParams(
-    variantParams.material ? parseVariantParams(variantParams).material : undefined,
-    variantParams.size
-  );
-  const canonicalUrl = `https://www.vcelarstvi-bubenik.cz/produkt/${slug}${canonicalParams.toString() ? `?${canonicalParams.toString()}` : ""}`;
+  // Canonical URL should always point to the base product URL without query parameters
+  // to avoid duplicate content issues when different variants are selected
+  const canonicalUrl = `https://www.vcelarstvi-bubenik.cz/produkt/${slug}`;
 
   return {
     title: product.name,
@@ -77,6 +74,14 @@ export async function generateMetadata({
       images: [product.image],
       type: "website",
       url: canonicalUrl,
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+      },
     },
   };
 }
@@ -116,7 +121,7 @@ export default async function ProductPage({
     "@type": "Product",
     name: product.name,
     description: product.description,
-    image: `https://vcelarstvi-bubenik.cz${product.image}`,
+    image: `https://www.vcelarstvi-bubenik.cz${product.image}`,
     brand: {
       "@type": "Brand",
       name: "Včelařské potřeby Bubeník",
@@ -129,7 +134,7 @@ export default async function ProductPage({
       availability: inStock
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
-      url: `https://vcelarstvi-bubenik.cz/produkt/${product.slug}`,
+      url: `https://www.vcelarstvi-bubenik.cz/produkt/${product.slug}`,
       itemCondition: "https://schema.org/NewCondition",
     },
   };
